@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CmpFutbolTfe</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="select_county">Please select a county</string>
+    <string name="title_activity_fields_list">Select the field</string>
+    <string name="select_field">Please select a field</string>
+    <string name="select_field_in">Please select a field in</string>
+    <string name="phoneLabel">Phone: </string>
+    <string name="title_activity_field_detail">Football Field</string>
+
+</resources>
