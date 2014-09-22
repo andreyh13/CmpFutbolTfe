@@ -12,7 +12,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 public class FieldDetailActivity extends ActionBarActivity {
@@ -61,6 +63,10 @@ public class FieldDetailActivity extends ActionBarActivity {
                 mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(ff.getLat(),ff.getLng())));
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+
+                mMap.addMarker(new MarkerOptions().position(new LatLng(ff.getLat(),ff.getLng()))
+                .title(ff.getName()).snippet(getString(R.string.phoneLabel)+" "+ff.getPhone())
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));
             }
         }
     }
