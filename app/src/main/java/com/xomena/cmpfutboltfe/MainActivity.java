@@ -3,6 +3,7 @@ package com.xomena.cmpfutboltfe;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,6 +39,7 @@ public class MainActivity extends ActionBarActivity {
     public static final String EXTRA_COUNTY = "com.xomena.cmpfutboltfe.COUNTY";
     public static final String EXTRA_FIELDS = "com.xomena.cmpfutboltfe.FIELDS";
     public static final String EXTRA_ITEM = "com.xomena.cmpfutboltfe.ITEM";
+    public static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
 
     private Map<String,List<FootballField>> ff_data;
 
@@ -46,11 +48,37 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // call AsyncTask to perform network operation on separate thread
-        String DATA_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyxqfsV0zdCKFRxgYYWPVO1PMshyhiuvTbvuKkkHjEGimPcdlpd/exec?jsonp=?";
-        new HttpAsyncTask().execute(DATA_SERVICE_URL);
+        if(savedInstanceState!=null && savedInstanceState.containsKey(SAVED_KEYS)){
+            String[] keys = savedInstanceState.getStringArray(SAVED_KEYS);
+            ff_data = new LinkedHashMap<String,List<FootballField>>();
+            for (String key : keys) {
+                ArrayList<Parcelable> al = savedInstanceState.getParcelableArrayList(key);
+                ArrayList<FootballField> af = new ArrayList<FootballField>();
+                for (Parcelable p : al) {
+                    af.add((FootballField) p);
+                }
+                ff_data.put(key, af);
+            }
+            showCounties(keys);
+        } else {
+            // call AsyncTask to perform network operation on separate thread
+            String DATA_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyxqfsV0zdCKFRxgYYWPVO1PMshyhiuvTbvuKkkHjEGimPcdlpd/exec?jsonp=?";
+            new HttpAsyncTask().execute(DATA_SERVICE_URL);
+        }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        if(ff_data != null){
+            savedInstanceState.putStringArray(SAVED_KEYS, ff_data.keySet().toArray(new String[ff_data.keySet().size()]));
+            for(String key : ff_data.keySet()){
+                ArrayList<FootballField> af = new ArrayList<FootballField>(ff_data.get(key));
+                savedInstanceState.putParcelableArrayList(key, af);
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
