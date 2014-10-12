@@ -20,12 +20,31 @@
         android:id="@+id/fieldDetailCaption"
         android:textStyle="bold" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/abc_action_bar_title_text_size"
+        android:id="@+id/fieldDetailHowToGet"
+        android:text="@string/howToGet"
+        android:layout_below="@id/fieldDetailCaption" />
+
+    <AutoCompleteTextView
+        android:id="@+id/fieldDetailEnterPlace"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="65dp"
+        android:hint="@string/enterPlace"
+        android:ems="10"
+        android:layout_below="@id/fieldDetailHowToGet" />
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/ff_map"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/fieldDetailCaption"
+        android:layout_below="@id/fieldDetailEnterPlace"
         />
 
 </RelativeLayout>

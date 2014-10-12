@@ -10,5 +10,6 @@
     <string name="select_field_in">Please select a field in</string>
     <string name="phoneLabel">Phone: </string>
     <string name="title_activity_field_detail">Football Field</string>
-
+    <string name="howToGet">How to get</string>
+    <string name="enterPlace">Please enter your address</string>
 </resources>
