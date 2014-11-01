@@ -49,6 +49,8 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
 
     private static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
 
+    private FootballField ff;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +59,7 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
         TextView title = (TextView)findViewById(R.id.fieldDetailCaption);
 
         Intent i = getIntent();
-        FootballField ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
+        ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
 
         title.setText(ff.getName());
 
@@ -71,6 +73,10 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         String str = (String) adapterView.getItemAtPosition(position);
         Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, RouteActivity.class);
+        intent.putExtra(MainActivity.EXTRA_ITEM, ff);
+        intent.putExtra(MainActivity.EXTRA_ADDRESS,str);
+        startActivity(intent);
     }
 
     @Override

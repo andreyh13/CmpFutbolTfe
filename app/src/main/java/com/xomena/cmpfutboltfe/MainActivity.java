@@ -40,6 +40,7 @@ public class MainActivity extends ActionBarActivity {
     public static final String EXTRA_FIELDS = "com.xomena.cmpfutboltfe.FIELDS";
     public static final String EXTRA_ITEM = "com.xomena.cmpfutboltfe.ITEM";
     public static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
+    public static final String EXTRA_ADDRESS = "com.xomena.cmpfutboltfe.ADDRESS";
 
     private Map<String,List<FootballField>> ff_data;
 

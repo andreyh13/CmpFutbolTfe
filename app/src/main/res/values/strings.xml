@@ -12,4 +12,6 @@
     <string name="title_activity_field_detail">Football Field</string>
     <string name="howToGet">How to get</string>
     <string name="enterPlace">Please enter your address</string>
+    <string name="title_activity_route">Route</string>
+
 </resources>
