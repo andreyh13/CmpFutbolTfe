@@ -130,9 +130,67 @@ public class RouteActivity extends ActionBarActivity {
                            JSONObject r = rts.getJSONObject(0);
 
                            //Title
-                           if(r.has("summary")){
+                           if(r.has("summary") && !r.isNull("summary")){
                                TextView title = (TextView)findViewById(R.id.routeTitle);
                                title.setText(r.getString("summary"));
+                           }
+
+                           //Warnings
+                           if(r.has("warnings") && !r.isNull("warnings")){
+                               JSONArray aw = r.getJSONArray("warnings");
+                               if(aw.length() > 0) {
+                                   String w = "";
+                                   for(int i=0; i<aw.length(); i++){
+                                       if(!aw.isNull(i)){
+                                           w += aw.getString(i)+"\n";
+                                       }
+                                   }
+                                   if(!w.equals("")){
+                                       TextView warn = (TextView)findViewById(R.id.routeWarnings);
+                                       warn.setText(w);
+                                   }
+                               }
+                           }
+
+                           //Legs
+                           if(r.has("legs") && !r.isNull("legs")){
+                               JSONArray al = r.getJSONArray("legs");
+                               for(int i=0; i<al.length(); i++){
+                                   if(!al.isNull(i)){
+                                       JSONObject l = al.getJSONObject(i);
+                                       //Start address
+                                       if(i==0 && l.has("start_address") && !l.isNull("start_address")){
+                                           TextView saddr = (TextView)findViewById(R.id.routeStartAddress);
+                                           saddr.setText(l.getString("start_address"));
+                                       }
+                                       //End address
+                                       if(i==al.length()-1 && l.has("end_address") && !l.isNull("end_address")){
+                                           TextView eaddr = (TextView)findViewById(R.id.routeEndAddress);
+                                           eaddr.setText(l.getString("end_address"));
+                                       }
+                                       //Distance and duration
+                                       String dd = "";
+                                       if(i==0 && l.has("distance") && !l.isNull("distance")){
+                                           dd += getString(R.string.distance)+": "+l.getJSONObject("distance").getString("text")+"  ";
+                                       }
+                                       if(i==0 && l.has("duration") && !l.isNull("duration")){
+                                           dd += getString(R.string.duration)+": "+l.getJSONObject("duration").getString("text");
+                                       }
+                                       if(!dd.equals("")){
+                                           TextView ddtv = (TextView)findViewById(R.id.routeDistanceDuration);
+                                           ddtv.setText(dd);
+                                       }
+
+                                       //Steps
+
+                                   }
+                               }
+                           }
+
+                           //Copyrights
+                           if(r.has("copyrights") && !r.isNull("copyrights")){
+                               TextView cpr = (TextView)findViewById(R.id.routeCopyright);
+                               cpr.setText(r.getString("copyrights"));
                            }
                        }
                     }

@@ -13,5 +13,7 @@
     <string name="howToGet">How to get</string>
     <string name="enterPlace">Please enter your address</string>
     <string name="title_activity_route">Route</string>
+    <string name="distance">Distance</string>
+    <string name="duration">Duration</string>
 
 </resources>
