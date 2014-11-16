@@ -42,6 +42,10 @@ public class MainActivity extends ActionBarActivity {
     public static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
     public static final String EXTRA_ADDRESS = "com.xomena.cmpfutboltfe.ADDRESS";
 
+    protected static final String DIRECTIONS_API_BASE = "https://maps.googleapis.com/maps/api/directions";
+    protected static final String OUT_JSON = "/json";
+    protected static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
+
     private Map<String,List<FootballField>> ff_data;
 
     @Override

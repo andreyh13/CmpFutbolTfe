@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">CmpFutbolTfe</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -15,5 +14,7 @@
     <string name="title_activity_route">Route</string>
     <string name="distance">Distance</string>
     <string name="duration">Duration</string>
-
+    <string name="route_description">Route description</string>
+    <string name="route_map">Map</string>
+    <string name="description">Description</string>
 </resources>
