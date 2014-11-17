@@ -39,30 +39,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:singleLine="false"
-        android:id="@+id/routeStartAddress"
+        android:id="@+id/routeCopyright"
         android:layout_below="@id/routeDistanceDuration" />
 
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/routeListView"
-        android:layout_below="@id/routeStartAddress"
+        android:layout_below="@id/routeCopyright"
         android:layout_centerHorizontal="true"
         android:layout_weight=".40" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="false"
-        android:id="@+id/routeEndAddress"
-        android:layout_below="@id/routeListView" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="false"
-        android:id="@+id/routeCopyright"
-        android:layout_below="@id/routeEndAddress" />
 
     </RelativeLayout>
 

@@ -10,7 +10,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +28,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -38,6 +46,7 @@ public class RouteMapFragment extends Fragment {
     private static final String LOG_TAG = "RouteMapFragment";
 
     private JSONObject jsonRoute;
+    private List<LatLng> stepLatLng = new LinkedList<LatLng>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -166,6 +175,7 @@ public class RouteMapFragment extends Fragment {
                         JSONArray rts = jsonRoute.getJSONArray("routes");
                         if(rts != null && rts.length() > 0 && !rts.isNull(0)) {
                             JSONObject r = rts.getJSONObject(0);
+                            List<String> listSteps = new ArrayList<String>();
 
                             //Title
                             if(r.has("summary") && !r.isNull("summary")){
@@ -196,16 +206,7 @@ public class RouteMapFragment extends Fragment {
                                 for(int i=0; i<al.length(); i++){
                                     if(!al.isNull(i)){
                                         JSONObject l = al.getJSONObject(i);
-                                        //Start address
-                                        if(i==0 && l.has("start_address") && !l.isNull("start_address")){
-                                            TextView saddr = (TextView)getView().findViewById(R.id.routeStartAddress);
-                                            saddr.setText(l.getString("start_address"));
-                                        }
-                                        //End address
-                                        if(i==al.length()-1 && l.has("end_address") && !l.isNull("end_address")){
-                                            TextView eaddr = (TextView)getView().findViewById(R.id.routeEndAddress);
-                                            eaddr.setText(l.getString("end_address"));
-                                        }
+
                                         //Distance and duration
                                         String dd = "";
                                         if(i==0 && l.has("distance") && !l.isNull("distance")){
@@ -219,11 +220,63 @@ public class RouteMapFragment extends Fragment {
                                             ddtv.setText(dd);
                                         }
 
-                                        //Steps
+                                        //Start address
+                                        if(i==0 && l.has("start_address") && !l.isNull("start_address")){
+                                            listSteps.add(l.getString("start_address"));
+                                            if (l.has("start_location") && !l.isNull("start_location")) {
+                                                stepLatLng.add(new LatLng(l.getJSONObject("start_location").getDouble("lat"), l.getJSONObject("start_location").getDouble("lng")));
+                                            }
+                                        }
 
+                                        //Steps
+                                        if(l.has("steps") && !l.isNull("steps")){
+                                            JSONArray as = l.getJSONArray("steps");
+                                            for(int k=0; k<as.length(); k++){
+                                                if(!as.isNull(k)){
+                                                    JSONObject s = as.getJSONObject(k);
+                                                    String m_step = "";
+                                                    if(s.has("html_instructions") && !s.isNull("html_instructions")) {
+                                                        m_step += s.getString("html_instructions") + "\n";
+                                                    }
+                                                    if(s.has("distance") && !s.isNull("distance")){
+                                                        m_step += getString(R.string.distance)+": "+s.getJSONObject("distance").getString("text")+"  ";
+                                                    }
+                                                    if(s.has("duration") && !s.isNull("duration")){
+                                                        m_step += getString(R.string.duration)+": "+s.getJSONObject("duration").getString("text");
+                                                    }
+                                                    if(!m_step.equals("")) {
+                                                        if (s.has("start_location") && !s.isNull("start_location")) {
+                                                            stepLatLng.add(new LatLng(s.getJSONObject("start_location").getDouble("lat"), s.getJSONObject("start_location").getDouble("lng")));
+                                                        }
+                                                        listSteps.add(m_step);
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        //End address
+                                        if(i==al.length()-1 && l.has("end_address") && !l.isNull("end_address")){
+                                            listSteps.add(l.getString("end_address"));
+                                            if (l.has("end_location") && !l.isNull("end_location")) {
+                                                stepLatLng.add(new LatLng(l.getJSONObject("end_location").getDouble("lat"), l.getJSONObject("end_location").getDouble("lng")));
+                                            }
+                                        }
                                     }
                                 }
                             }
+
+                            String[] data = listSteps.toArray(new String[listSteps.size()]);
+                            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(),
+                                    android.R.layout.simple_list_item_1, data);
+                            ListView listView = (ListView) getActivity().findViewById(R.id.routeListView);
+                            listView.setAdapter(adapter);
+
+                            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                                    TextView selectedView = (TextView) v;
+
+                                }
+                            });
 
                             //Copyrights
                             if(r.has("copyrights") && !r.isNull("copyrights")){
