@@ -163,6 +163,7 @@ public class RouteMapFragment extends Fragment {
                 // Create a JSON object hierarchy from the results
                 jsonRoute = new JSONObject(result);
                 processJSONObject();
+                mListener.exchangeJSON(jsonRoute);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "Cannot process JSON results", e);
             }

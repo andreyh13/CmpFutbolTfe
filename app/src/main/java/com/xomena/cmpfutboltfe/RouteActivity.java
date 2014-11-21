@@ -8,10 +8,23 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 
 public class RouteActivity extends FragmentActivity implements ActionBar.TabListener,
@@ -21,6 +34,8 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
 
     SimplePagerAdapter mPagerAdapter;
     ViewPager mViewPager;
+
+    private JSONObject jsonRoute = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,7 +152,37 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
     }
 
     public void exchangeJSON(JSONObject json){
+        jsonRoute = json;
+        MapFragment mapFrag = (MapFragment)
+                getFragmentManager().findFragmentById(R.id.route_map);
+        if(mapFrag!=null && jsonRoute != null){
+            GoogleMap map = mapFrag.getMap();
+            if(map!=null) {
+                try {
+                    if (jsonRoute.has("status") && jsonRoute.getString("status").equals("OK")) {
+                        if (jsonRoute.has("routes")) {
+                            JSONArray rts = jsonRoute.getJSONArray("routes");
+                            if (rts != null && rts.length() > 0 && !rts.isNull(0)) {
+                                JSONObject r = rts.getJSONObject(0);
+                                if (r.has("overview_polyline") && !r.isNull("overview_polyline")) {
+                                    JSONObject m_poly = r.getJSONObject("overview_polyline");
+                                    if (m_poly.has("points") && !m_poly.isNull("points")) {
+                                        String enc_points = m_poly.getString("points");
+                                        List<LatLng> m_path = PolyUtil.decode(enc_points);
+                                        PolylineOptions polyOptions = new PolylineOptions().addAll(m_path);
+                                        Polyline polyline = map.addPolyline(polyOptions);
 
+                                        //LatLngBounds m_bounds = new LatLngBounds();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, "Cannot process directions JSON results", e);
+                }
+            }
+        }
     }
 
     public void onDirectionsMapClick(){
