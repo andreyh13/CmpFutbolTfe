@@ -1,88 +1,110 @@
 package com.xomena.cmpfutboltfe;
 
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.support.v7.app.ActionBarActivity;
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
 
-public class MainActivity extends ActionBarActivity {
-    private static final String TAG = "MainActivity";
-    public static final String EXTRA_COUNTY = "com.xomena.cmpfutboltfe.COUNTY";
-    public static final String EXTRA_FIELDS = "com.xomena.cmpfutboltfe.FIELDS";
-    public static final String EXTRA_ITEM = "com.xomena.cmpfutboltfe.ITEM";
-    public static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
-    public static final String EXTRA_ADDRESS = "com.xomena.cmpfutboltfe.ADDRESS";
+public class MainActivity extends FragmentActivity implements CountiesFragment.OnFragmentInteractionListener,
+        MainMapFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener,
+        ActionBar.TabListener {
+    private static final String LOG_TAG = "MainActivity";
+    protected static final String EXTRA_COUNTY = "com.xomena.cmpfutboltfe.COUNTY";
+    protected static final String EXTRA_FIELDS = "com.xomena.cmpfutboltfe.FIELDS";
+    protected static final String EXTRA_ITEM = "com.xomena.cmpfutboltfe.ITEM";
+    protected static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
+    protected static final String EXTRA_ADDRESS = "com.xomena.cmpfutboltfe.ADDRESS";
 
     protected static final String DIRECTIONS_API_BASE = "https://maps.googleapis.com/maps/api/directions";
     protected static final String OUT_JSON = "/json";
     protected static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
 
-    private Map<String,List<FootballField>> ff_data;
+
+    MainPagerAdapter mPagerAdapter;
+    ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(savedInstanceState!=null && savedInstanceState.containsKey(SAVED_KEYS)){
-            String[] keys = savedInstanceState.getStringArray(SAVED_KEYS);
-            ff_data = new LinkedHashMap<String,List<FootballField>>();
-            for (String key : keys) {
-                ArrayList<Parcelable> al = savedInstanceState.getParcelableArrayList(key);
-                ArrayList<FootballField> af = new ArrayList<FootballField>();
-                for (Parcelable p : al) {
-                    af.add((FootballField) p);
-                }
-                ff_data.put(key, af);
-            }
-            showCounties(keys);
-        } else {
-            // call AsyncTask to perform network operation on separate thread
-            String DATA_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyxqfsV0zdCKFRxgYYWPVO1PMshyhiuvTbvuKkkHjEGimPcdlpd/exec?jsonp=?";
-            new HttpAsyncTask().execute(DATA_SERVICE_URL);
+        // Create the adapter that will return a fragment for each of the three primary sections
+        // of the app.
+        mPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
+
+        // Set up the action bar.
+        final ActionBar actionBar = getActionBar();
+
+        // Specify that we will be displaying tabs in the action bar.
+        if (actionBar != null) {
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         }
+
+        // Set up the ViewPager, attaching the adapter and setting up a listener for when the
+        // user swipes between sections.
+        mViewPager = (ViewPager) findViewById(R.id.mainFragmentPager);
+        mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                // When swiping between different app sections, select the corresponding tab.
+                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
+                // Tab.
+                try {
+                    assert actionBar != null;
+                    actionBar.setSelectedNavigationItem(position);
+                } catch(Exception e){
+                    Log.e(LOG_TAG, "Cannot set selected item", e);
+                }
+            }
+        });
+
+        // For each of the sections in the app, add a tab to the action bar.
+        for (int k = 0; k < mPagerAdapter.getCount(); k++) {
+            // Create a tab with text corresponding to the page title defined by the adapter.
+            // Also specify this Activity object, which implements the TabListener interface, as the
+            // listener for when this tab is selected.
+            try {
+                assert actionBar != null;
+                actionBar.addTab(actionBar.newTab().setText(mPagerAdapter.getPageTitle(k))
+                        .setTabListener(this));
+            } catch(Exception e){
+                Log.e(LOG_TAG, "Cannot create new tab", e);
+            }
+        }
+
+
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        // When the given tab is selected, switch to the corresponding page in the ViewPager.
+        mViewPager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-
-        if(ff_data != null){
-            savedInstanceState.putStringArray(SAVED_KEYS, ff_data.keySet().toArray(new String[ff_data.keySet().size()]));
-            for(String key : ff_data.keySet()){
-                ArrayList<FootballField> af = new ArrayList<FootballField>(ff_data.get(key));
-                savedInstanceState.putParcelableArrayList(key, af);
-            }
-        }
     }
 
     @Override
@@ -101,55 +123,18 @@ public class MainActivity extends ActionBarActivity {
         return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
-    // check network connection
-    public boolean isConnected(){
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(MainActivity.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
-    }
-
-    private String getFromUrl(String url) {
-        String res = "";
-        InputStream content;
-        // check if you are connected or not
-        if(isConnected()) {
-            HttpClient httpclient = new DefaultHttpClient();
-            try {
-                HttpResponse response = httpclient.execute(new HttpGet(url));
-                content = response.getEntity().getContent();
-                if(content !=null){
-                    try {
-                        res = MainActivity.convertInputStreamToString(content);
-                    } catch (IOException ex){
-                        Log.e(TAG, "IO exception", ex);
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Network exception", e);
-            } finally {
-                httpclient.getConnectionManager().shutdown();
+    public void onObtainFootballFields(Map<String,List<FootballField>> ff_data){
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        for(Fragment frag: fragments){
+            if(frag instanceof MainMapFragment){
+                MainMapFragment mapFrag = (MainMapFragment)frag;
+                mapFrag.initializeMainMap(ff_data);
+                break;
             }
-        } else {
-            Log.d(TAG, "Network not connected");
         }
-        return res;
     }
 
-    private void showCounties(String[] data){
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, data);
-        ListView listView = (ListView) findViewById(R.id.listView);
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                TextView selectedView = (TextView) v;
-                gotoSelectFields(selectedView.getText().toString());
-            }
-        });
-    }
-
-    private void gotoSelectFields(String county){
+    public void onSelectCounty(String county, Map<String,List<FootballField>> ff_data){
         Intent intent = new Intent(this, FieldsListActivity.class);
         intent.putExtra(EXTRA_COUNTY, county);
         if(ff_data !=null && ff_data.containsKey(county)){
@@ -159,50 +144,51 @@ public class MainActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-    // convert input stream to String
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line;
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
+    public void onSelectMarker(){
 
-        inputStream.close();
-        return result;
     }
 
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            return getFromUrl(urls[0]);
+    public void onSearchFootballField(){
+
+    }
+
+    public static class MainPagerAdapter extends FragmentPagerAdapter {
+
+        public MainPagerAdapter(FragmentManager fragmentManager) {
+            super(fragmentManager);
         }
-        // onPostExecute displays the results of the AsyncTask.
+
         @Override
-        protected void onPostExecute(String result) {
-            Map<String,List<FootballField>> res = new LinkedHashMap<String, List<FootballField>>();
-            String json = (result.substring(0,result.length()-1)).substring(2);
+        public int getCount() {
+            return 3;
+        }
 
-            JSONArray js_arr;
-            try {
-                js_arr = new JSONArray(json);
-                for(int i=1; i<js_arr.length(); i++){
-                    if(!js_arr.isNull(i)){
-                        JSONArray js_val = js_arr.getJSONArray(i);
-                        FootballField ff = new FootballField(js_val);
-                        String key = ff.getCounty();
-                        if(!res.containsKey(key)){
-                            res.put(key, new LinkedList<FootballField>());
-                        }
-                        res.get(key).add(ff);
-                    }
-                }
-            } catch (JSONException ex){
-                Log.e(TAG, "JSON Exception", ex);
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return CountiesFragment.newInstance();
+                case 1:
+                    return MainMapFragment.newInstance();
+                case 2:
+                    return SearchFragment.newInstance();
+                default:
+                    return null;
             }
+        }
 
-            ff_data = res;
-            String[] data = res.keySet().toArray(new String[res.keySet().size()]);
-            showCounties(data);
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "Counties"; //Resources.getSystem().getString(R.string.description);
+                case 1:
+                    return "Map"; //Resources.getSystem().getString(R.string.route_map);
+                case 2:
+                    return "Search";
+                default:
+                    return null;
+            }
         }
     }
 }

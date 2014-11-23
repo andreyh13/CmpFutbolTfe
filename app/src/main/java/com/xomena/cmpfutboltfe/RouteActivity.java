@@ -2,20 +2,25 @@ package com.xomena.cmpfutboltfe;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
@@ -36,6 +41,7 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
     ViewPager mViewPager;
 
     private JSONObject jsonRoute = null;
+    private FootballField ff;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +82,9 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
                             .setText(mPagerAdapter.getPageTitle(k))
                             .setTabListener(this));
         }
+
+        Intent i = getIntent();
+        ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
     }
 
     @Override
@@ -172,7 +181,42 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
                                         PolylineOptions polyOptions = new PolylineOptions().addAll(m_path);
                                         Polyline polyline = map.addPolyline(polyOptions);
 
-                                        //LatLngBounds m_bounds = new LatLngBounds();
+                                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                        for(LatLng coord : m_path){
+                                            builder.include(coord);
+                                        }
+                                        LatLngBounds m_bounds = builder.build();
+                                        map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 8));
+                                    }
+                                }
+
+                                //Legs
+                                if(r.has("legs") && !r.isNull("legs")) {
+                                    JSONArray al = r.getJSONArray("legs");
+                                    for (int i = 0; i < al.length(); i++) {
+                                        if (!al.isNull(i)) {
+                                            JSONObject l = al.getJSONObject(i);
+
+                                            //Start address
+                                            if(i==0 && l.has("start_address") && !l.isNull("start_address")){
+                                                if (l.has("start_location") && !l.isNull("start_location")) {
+                                                    map.addMarker(new MarkerOptions()
+                                                            .position(new LatLng(l.getJSONObject("start_location").getDouble("lat"), l.getJSONObject("start_location").getDouble("lng")))
+                                                            .title(l.getString("start_address"))
+                                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                                                }
+                                            }
+
+                                            //End address
+                                            if(i==al.length()-1 && l.has("end_address") && !l.isNull("end_address")){
+                                                if (l.has("end_location") && !l.isNull("end_location")) {
+                                                    map.addMarker(new MarkerOptions()
+                                                            .position(new LatLng(l.getJSONObject("end_location").getDouble("lat"), l.getJSONObject("end_location").getDouble("lng")))
+                                                            .title(l.getString("end_address"))
+                                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -180,6 +224,11 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
                     }
                 } catch (JSONException e) {
                     Log.e(LOG_TAG, "Cannot process directions JSON results", e);
+                }
+                if(ff!=null) {
+                    map.addMarker(new MarkerOptions().position(new LatLng(ff.getLat(), ff.getLng()))
+                            .title(ff.getName()).snippet(getString(R.string.phoneLabel) + " " + ff.getPhone())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));
                 }
             }
         }
