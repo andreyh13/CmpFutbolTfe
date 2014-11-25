@@ -30,7 +30,7 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
     protected static final String DIRECTIONS_API_BASE = "https://maps.googleapis.com/maps/api/directions";
     protected static final String OUT_JSON = "/json";
     protected static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
-
+    protected static final int QPS = 10;
 
     MainPagerAdapter mPagerAdapter;
     ViewPager mViewPager;
@@ -160,7 +160,7 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override
@@ -170,8 +170,6 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
                     return CountiesFragment.newInstance();
                 case 1:
                     return MainMapFragment.newInstance();
-                case 2:
-                    return SearchFragment.newInstance();
                 default:
                     return null;
             }
@@ -184,8 +182,6 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
                     return "Counties"; //Resources.getSystem().getString(R.string.description);
                 case 1:
                     return "Map"; //Resources.getSystem().getString(R.string.route_map);
-                case 2:
-                    return "Search";
                 default:
                     return null;
             }

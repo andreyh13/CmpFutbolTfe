@@ -11,6 +11,7 @@ public class MarkerItem implements ClusterItem {
     private final LatLng mPosition;
     private String name;
     private String snippet;
+    private FootballField ff;
 
     public MarkerItem(double lat, double lng) {
         mPosition = new LatLng(lat, lng);
@@ -29,11 +30,19 @@ public class MarkerItem implements ClusterItem {
         this.snippet = s;
     }
 
+    public void setFootballField(FootballField f){
+        this.ff = f;
+    }
+
     public String getName(){
         return this.name;
     }
 
     public String getSnippet(){
         return this.snippet;
+    }
+
+    public FootballField getFootballField(){
+        return this.ff;
     }
 }

@@ -186,7 +186,7 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
                                             builder.include(coord);
                                         }
                                         LatLngBounds m_bounds = builder.build();
-                                        map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 8));
+                                        map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
                                     }
                                 }
 

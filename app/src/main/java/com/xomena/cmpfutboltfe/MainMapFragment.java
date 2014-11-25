@@ -1,6 +1,7 @@
 package com.xomena.cmpfutboltfe;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -131,6 +132,7 @@ public class MainMapFragment extends Fragment
                             MarkerItem markerItem = new MarkerItem(ff.getLat(),ff.getLng());
                             markerItem.setName(ff.getName());
                             markerItem.setSnippet(getString(R.string.phoneLabel)+" "+ff.getPhone());
+                            markerItem.setFootballField(ff);
                             mClusterManager.addItem(markerItem);
                         }
                     }
@@ -162,7 +164,9 @@ public class MainMapFragment extends Fragment
 
     @Override
     public void onClusterItemInfoWindowClick(MarkerItem item) {
-
+        Intent intent = new Intent(this.getActivity(), FieldDetailActivity.class);
+        intent.putExtra(MainActivity.EXTRA_ITEM, item.getFootballField());
+        startActivity(intent);
     }
 
     @Override
