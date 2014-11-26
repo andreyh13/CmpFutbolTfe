@@ -29,6 +29,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- enable the search dialog to send searches to SearchableActivity -->
+            <meta-data android:name="android.app.default_searchable"
+                android:value="com.xomena.cmpfutboltfe.SearchableActivity" />
         </activity>
         <activity
             android:name="com.xomena.cmpfutboltfe.FieldsListActivity"
@@ -49,6 +52,15 @@
         <activity
             android:name="com.xomena.cmpfutboltfe.RouteActivity"
             android:label="@string/title_activity_route" >
+        </activity>
+        <activity
+            android:name="com.xomena.cmpfutboltfe.SearchableActivity"
+            android:label="@string/title_activity_searchable" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
         </activity>
     </application>
 
