@@ -2,10 +2,14 @@ package com.xomena.cmpfutboltfe;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
+import android.widget.SearchView;
 
 public class MainActivity extends FragmentActivity implements CountiesFragment.OnFragmentInteractionListener,
         MainMapFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener,
@@ -84,8 +89,6 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
                 Log.e(LOG_TAG, "Cannot create new tab", e);
             }
         }
-
-
     }
 
     @Override
@@ -111,6 +114,15 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem item = menu.findItem(R.id.menu_search);
+
+        SearchView searchView = (SearchView)MenuItemCompat.getActionView(item);
+
+        if(searchView!=null) {
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            SearchableInfo info = searchManager.getSearchableInfo(getComponentName());
+            searchView.setSearchableInfo(info);
+        }
         return true;
     }
 
