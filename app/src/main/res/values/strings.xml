@@ -23,4 +23,6 @@
     <string name="search_hint">Search football field</string>
     <string name="title_activity_searchable">Search Field</string>
     <string name="search">Search</string>
+    <string name="title_activity_street_view">Street View</string>
+
 </resources>

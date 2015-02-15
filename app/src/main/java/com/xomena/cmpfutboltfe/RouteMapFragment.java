@@ -48,6 +48,8 @@ public class RouteMapFragment extends Fragment {
 
     private JSONObject jsonRoute;
     private List<LatLng> stepLatLng = new LinkedList<LatLng>();
+    private double ff_lat;
+    private double ff_lng;
 
     private OnFragmentInteractionListener mListener;
 
@@ -74,7 +76,9 @@ public class RouteMapFragment extends Fragment {
         FootballField ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
 
         String address = i.getStringExtra(MainActivity.EXTRA_ADDRESS);
-        getRoute(address, ff.getLat(), ff.getLng());
+        ff_lat = ff.getLat();
+        ff_lng = ff.getLng();
+        getRoute(address, ff_lat, ff_lng);
     }
 
     @Override
@@ -275,8 +279,18 @@ public class RouteMapFragment extends Fragment {
 
                             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                                    TextView selectedView = (TextView) v;
-
+                                    Intent intent = new Intent(getActivity(), StreetViewActivity.class);
+                                    LatLng location = stepLatLng.get(position);
+                                    intent.putExtra("SV_LAT", location.latitude);
+                                    intent.putExtra("SV_LNG", location.longitude);
+                                    if(position==stepLatLng.size()-1){
+                                        intent.putExtra("SV_LAT_NEXT", stepLatLng.get(position+1).latitude);
+                                        intent.putExtra("SV_LNG_NEXT", stepLatLng.get(position+1).longitude);
+                                    } else {
+                                        intent.putExtra("SV_LAT_NEXT", ff_lat);
+                                        intent.putExtra("SV_LNG_NEXT", ff_lng);
+                                    }
+                                    startActivity(intent);
                                 }
                             });
 
