@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">CmpFutbolTfe</string>
+    <string name="app_name">Football pitches Tfe</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="select_county">Please select a county</string>
-    <string name="title_activity_fields_list">Select the field</string>
-    <string name="select_field">Please select a field</string>
-    <string name="select_field_in">Please select a field in</string>
+    <string name="title_activity_fields_list">Select the pitch</string>
+    <string name="select_field">Please select a pitch</string>
+    <string name="select_field_in">Please select a pitch in</string>
     <string name="phoneLabel">Phone: </string>
-    <string name="title_activity_field_detail">Football Field</string>
+    <string name="title_activity_field_detail">Football Pitch</string>
     <string name="howToGet">How to get</string>
     <string name="enterPlace">Please enter your address</string>
     <string name="title_activity_route">Route</string>
@@ -19,10 +19,14 @@
     <string name="route_map">Map</string>
     <string name="description">Description</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="app_label">Football Fields Tenerife</string>
-    <string name="search_hint">Search football field</string>
-    <string name="title_activity_searchable">Search Field</string>
+    <string name="app_label">Football Pitches Tenerife</string>
+    <string name="search_hint">Search football pitch</string>
+    <string name="title_activity_searchable">Search Pitch</string>
     <string name="search">Search</string>
     <string name="title_activity_street_view">Street View</string>
-
+    <string name="title_activity_animate_route">Animate Route</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="show_street_view">Show street view</string>
+    <string name="last_path_point">You have reached the final position of the route</string>
 </resources>

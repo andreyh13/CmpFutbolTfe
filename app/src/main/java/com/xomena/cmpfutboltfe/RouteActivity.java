@@ -13,6 +13,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,6 +43,7 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
 
     private JSONObject jsonRoute = null;
     private FootballField ff;
+    private String enc_polyline = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +156,7 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
                                     JSONObject m_poly = r.getJSONObject("overview_polyline");
                                     if (m_poly.has("points") && !m_poly.isNull("points")) {
                                         String enc_points = m_poly.getString("points");
+                                        this.enc_polyline = enc_points;
                                         List<LatLng> m_path = PolyUtil.decode(enc_points);
                                         PolylineOptions polyOptions = new PolylineOptions().addAll(m_path);
                                         Polyline polyline = map.addPolyline(polyOptions);
@@ -215,5 +218,18 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
 
     }
 
+    public void onRouteAnimationClick() {
+        Intent intent = new Intent(this, AnimateRouteActivity.class);
+        if(jsonRoute!=null && enc_polyline!=null){
+            intent.putExtra("ENC_POLY", enc_polyline);
+        }
+        if(ff!=null){
+            intent.putExtra(MainActivity.EXTRA_ITEM,ff);
+        }
+        startActivity(intent);
+    }
 
+    public void onShowStreetView(View view){
+        this.onRouteAnimationClick();
+    }
 }

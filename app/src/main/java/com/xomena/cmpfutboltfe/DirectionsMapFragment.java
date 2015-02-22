@@ -95,6 +95,6 @@ public class DirectionsMapFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         public void onDirectionsMapClick();
+        public void onRouteAnimationClick();
     }
-
 }

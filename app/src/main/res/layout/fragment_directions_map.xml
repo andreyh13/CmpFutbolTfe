@@ -3,12 +3,23 @@
     android:layout_height="match_parent"
     tools:context="com.xomena.cmpfutboltfe.DirectionsMapFragment">
 
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/route_map"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="40dp"
         android:layout_weight="1"
     />
+
+    <Button
+        android:id="@+id/show_street_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onShowStreetView"
+        android:text="@string/show_street_view"
+        android:layout_below="@id/route_map"
+        android:layout_gravity="center_horizontal|bottom" />
 
 </FrameLayout>

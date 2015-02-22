@@ -39,8 +39,9 @@ public class StreetViewActivity extends ActionBarActivity implements OnStreetVie
 
     @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
+        StreetViewPanoramaCamera.Builder cam_build = StreetViewPanoramaCamera.builder();
         if(m_lat!=0 && m_lng!=0) {
-            panorama.setPosition(new LatLng(m_lat, m_lng));
+            panorama.setPosition(new LatLng(m_lat, m_lng), 20);
             if(m_lat_next!=0 && m_lng_next!=0){
                 //Get the current location
                 Location startingLocation = new Location("starting point");
@@ -55,8 +56,8 @@ public class StreetViewActivity extends ActionBarActivity implements OnStreetVie
                 //Find the Bearing from current location to next location
                 float targetBearing = startingLocation.bearingTo(endingLocation);
 
-                long duration = 0;
-                panorama.animateTo(StreetViewPanoramaCamera.builder().bearing(targetBearing).build(),duration);
+                long duration = 100;
+                panorama.animateTo(cam_build.bearing(targetBearing).build(),duration);
             }
         }
         panorama.setUserNavigationEnabled(true);

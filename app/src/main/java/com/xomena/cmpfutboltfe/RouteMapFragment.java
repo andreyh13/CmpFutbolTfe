@@ -284,11 +284,11 @@ public class RouteMapFragment extends Fragment {
                                     intent.putExtra("SV_LAT", location.latitude);
                                     intent.putExtra("SV_LNG", location.longitude);
                                     if(position==stepLatLng.size()-1){
-                                        intent.putExtra("SV_LAT_NEXT", stepLatLng.get(position+1).latitude);
-                                        intent.putExtra("SV_LNG_NEXT", stepLatLng.get(position+1).longitude);
-                                    } else {
                                         intent.putExtra("SV_LAT_NEXT", ff_lat);
                                         intent.putExtra("SV_LNG_NEXT", ff_lng);
+                                    } else {
+                                        intent.putExtra("SV_LAT_NEXT", stepLatLng.get(position+1).latitude);
+                                        intent.putExtra("SV_LNG_NEXT", stepLatLng.get(position+1).longitude);
                                     }
                                     startActivity(intent);
                                 }

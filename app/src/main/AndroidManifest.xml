@@ -69,6 +69,10 @@
             android:name=".StreetViewActivity"
             android:label="@string/title_activity_street_view" >
         </activity>
+        <activity
+            android:name=".AnimateRouteActivity"
+            android:label="@string/title_activity_animate_route" >
+        </activity>
     </application>
 
 </manifest>
