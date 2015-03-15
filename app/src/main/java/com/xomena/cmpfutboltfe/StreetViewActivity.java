@@ -12,6 +12,9 @@ import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
 
 import android.location.Location;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class StreetViewActivity extends ActionBarActivity implements OnStreetViewPanoramaReadyCallback {
 
@@ -19,6 +22,8 @@ public class StreetViewActivity extends ActionBarActivity implements OnStreetVie
     private double m_lng;
     private double m_lat_next;
     private double m_lng_next;
+    private StreetViewPanorama mStreetViewPanorama;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,27 +44,52 @@ public class StreetViewActivity extends ActionBarActivity implements OnStreetVie
 
     @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
-        StreetViewPanoramaCamera.Builder cam_build = StreetViewPanoramaCamera.builder();
         if(m_lat!=0 && m_lng!=0) {
             panorama.setPosition(new LatLng(m_lat, m_lng), 20);
-            if(m_lat_next!=0 && m_lng_next!=0){
-                //Get the current location
-                Location startingLocation = new Location("starting point");
-                startingLocation.setLatitude(m_lat);
-                startingLocation.setLongitude(m_lng);
-
-                //Get the target location
-                Location endingLocation = new Location("ending point");
-                endingLocation.setLatitude(m_lat_next);
-                endingLocation.setLongitude(m_lng_next);
-
-                //Find the Bearing from current location to next location
-                float targetBearing = startingLocation.bearingTo(endingLocation);
-
-                long duration = 100;
-                panorama.animateTo(cam_build.bearing(targetBearing).build(),duration);
-            }
         }
         panorama.setUserNavigationEnabled(true);
+        mStreetViewPanorama = panorama;
+
+        timer = new Timer();
+        PanoramaTimerTask myTimerTask = new PanoramaTimerTask();
+        timer.schedule(myTimerTask, 1000, 1000);
+    }
+
+
+    class PanoramaTimerTask extends TimerTask {
+
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable(){
+
+                @Override
+                public void run() {
+                    StreetViewPanoramaCamera.Builder cam_build = StreetViewPanoramaCamera.builder();
+                    if(m_lat!=0 && m_lng!=0 && m_lat_next!=0 && m_lng_next!=0) {
+                        //Get the current location
+                        Location startingLocation = new Location("starting point");
+                        startingLocation.setLatitude(m_lat);
+                        startingLocation.setLongitude(m_lng);
+
+                        //Get the target location
+                        Location endingLocation = new Location("ending point");
+                        endingLocation.setLatitude(m_lat_next);
+                        endingLocation.setLongitude(m_lng_next);
+
+                        //Find the Bearing from current location to next location
+                        float targetBearing = startingLocation.bearingTo(endingLocation);
+
+                        long duration = 100;
+                        mStreetViewPanorama.animateTo(cam_build.bearing(targetBearing).build(),duration);
+                    }
+
+                    if(timer != null) {
+                        timer.cancel();
+                        timer = null;
+                    }
+                }
+            });
+        }
+
     }
 }

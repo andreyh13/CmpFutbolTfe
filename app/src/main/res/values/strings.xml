@@ -29,4 +29,5 @@
     <string name="stop">Stop</string>
     <string name="show_street_view">Show street view</string>
     <string name="last_path_point">You have reached the final position of the route</string>
+    <string name="finished">Finished</string>
 </resources>

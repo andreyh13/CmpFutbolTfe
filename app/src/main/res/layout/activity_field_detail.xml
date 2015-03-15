@@ -45,6 +45,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/fieldDetailEnterPlace"
+        android:layout_marginBottom="40dp"
         />
+
+    <Button
+        android:id="@+id/show_pitch_street_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onShowPitchStreetView"
+        android:text="@string/show_street_view"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
 
 </RelativeLayout>

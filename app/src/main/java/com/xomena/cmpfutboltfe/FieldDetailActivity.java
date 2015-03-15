@@ -24,6 +24,11 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.GeocodingApiRequest;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.GeocodingResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +53,7 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
     private static final String OUT_JSON = "/json";
 
     private static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
+    private static final int QPS = 10;
 
     private FootballField ff;
 
@@ -106,6 +112,7 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
             StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
             sb.append("?key=" + API_KEY);
             sb.append("&components=country:es");
+            sb.append("&location=28.2915637,-16.6291304&radius=70000");
             sb.append("&input=" + URLEncoder.encode(input, "utf8"));
 
             URL url = new URL(sb.toString());
@@ -191,6 +198,29 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
                     }
                 }};
             return filter;
+        }
+    }
+
+    public void onShowPitchStreetView(View view){
+        GeoApiContext context = new GeoApiContext().setApiKey(API_KEY).setQueryRateLimit(QPS);
+        try {
+            GeocodingApiRequest req = GeocodingApi.newRequest(context);
+            GeocodingResult[] results = req.latlng(new com.google.maps.model.LatLng(ff.getLat(),ff.getLng())).await();
+            if(results!=null && results.length>0){
+                GeocodingResult r = results[0];
+                if(r!=null && r.geometry!=null && r.geometry.location!=null){
+                    Intent intent = new Intent(this, StreetViewActivity.class);
+                    intent.putExtra("SV_LAT", r.geometry.location.lat);
+                    intent.putExtra("SV_LNG", r.geometry.location.lng);
+                    intent.putExtra("SV_LAT_NEXT", ff.getLat());
+                    intent.putExtra("SV_LNG_NEXT", ff.getLng());
+                    startActivity(intent);
+                }
+            }
+        } catch(ApiException e){
+            Log.e(LOG_TAG, e.getMessage());
+        } catch(Exception e){
+            Log.e(LOG_TAG, e.getMessage());
         }
     }
 
