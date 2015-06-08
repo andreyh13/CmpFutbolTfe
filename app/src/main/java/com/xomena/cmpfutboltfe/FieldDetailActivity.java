@@ -2,6 +2,7 @@ package com.xomena.cmpfutboltfe;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +37,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -49,6 +51,8 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
     private static final String LOG_TAG = "FieldDetailActivity";
 
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
+    private static final String ROADS_API_BASE = "https://roads.googleapis.com/v1/snapToRoads";
+    private static final String REVGEO_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
     private static final String OUT_JSON = "/json";
 
@@ -56,6 +60,7 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
     private static final int QPS = 10;
 
     private FootballField ff;
+    private JSONObject snappedPoints;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,7 +207,8 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
     }
 
     public void onShowPitchStreetView(View view){
-        GeoApiContext context = new GeoApiContext().setApiKey(API_KEY).setQueryRateLimit(QPS);
+        //The client library doesn't work on old versions of Android. Will comment this block and implement another one.
+        /*GeoApiContext context = new GeoApiContext().setApiKey(API_KEY).setQueryRateLimit(QPS);
         try {
             GeocodingApiRequest req = GeocodingApi.newRequest(context);
             GeocodingResult[] results = req.latlng(new com.google.maps.model.LatLng(ff.getLat(),ff.getLng())).await();
@@ -221,7 +227,156 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
             Log.e(LOG_TAG, e.getMessage());
         } catch(Exception e){
             Log.e(LOG_TAG, e.getMessage());
+        }*/
+        try {
+            StringBuilder sb = new StringBuilder(ROADS_API_BASE).append("?key=").append(API_KEY)
+                    .append("&path=").append(ff.getLat()).append(",").append(ff.getLng());
+            new HttpAsyncTask().execute(sb.toString());
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Error processing Roads API URL", e);
         }
     }
 
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            StringBuilder jsonResults = new StringBuilder();
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(urls[0]);
+                conn = (HttpURLConnection) url.openConnection();
+                InputStreamReader in = new InputStreamReader(conn.getInputStream());
+
+                // Load the results into a StringBuilder
+                int read;
+                char[] buff = new char[1024];
+                while ((read = in.read(buff)) != -1) {
+                    jsonResults.append(buff, 0, read);
+                }
+            } catch (MalformedURLException e) {
+                Log.e(LOG_TAG, "Error processing Roads API URL", e);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error connecting to Roads API", e);
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+            return jsonResults.toString();
+        }
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            try {
+                // Create a JSON object hierarchy from the results
+                snappedPoints = new JSONObject(result);
+                processJSONObject();
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, "Cannot process JSON results", e);
+            }
+        }
+    }
+
+    private class HttpAsyncTaskRevGeo extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            StringBuilder jsonResults = new StringBuilder();
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(urls[0]);
+                conn = (HttpURLConnection) url.openConnection();
+                InputStreamReader in = new InputStreamReader(conn.getInputStream());
+
+                // Load the results into a StringBuilder
+                int read;
+                char[] buff = new char[1024];
+                while ((read = in.read(buff)) != -1) {
+                    jsonResults.append(buff, 0, read);
+                }
+            } catch (MalformedURLException e) {
+                Log.e(LOG_TAG, "Error processing Geocoding API URL", e);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error connecting to Geocoding API", e);
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+            return jsonResults.toString();
+        }
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            try {
+                // Create a JSON object hierarchy from the results
+                JSONObject m_revgeo = new JSONObject(result);
+                processJSONObjectRevGeo(m_revgeo);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, "Cannot process JSON results", e);
+            }
+        }
+    }
+
+    private void processJSONObject(){
+        if(snappedPoints !=null){
+            if(snappedPoints.has("snappedPoints") && !snappedPoints.isNull("snappedPoints")){
+                try {
+                    JSONArray points = snappedPoints.getJSONArray("snappedPoints");
+                    if(points.length()>0){
+                        JSONObject point = points.getJSONObject(0);
+
+                        double lat =  point.getJSONObject("location").getDouble("latitude");
+                        double lng =  point.getJSONObject("location").getDouble("longitude");
+
+                        Intent intent = new Intent(this, StreetViewActivity.class);
+                        intent.putExtra("SV_LAT", lat);
+                        intent.putExtra("SV_LNG", lng);
+                        intent.putExtra("SV_LAT_NEXT", ff.getLat());
+                        intent.putExtra("SV_LNG_NEXT", ff.getLng());
+                        startActivity(intent);
+
+                    }
+                } catch(JSONException e){
+                    Log.e(LOG_TAG, "Cannot process JSON results", e);
+                }
+            } else {
+                //Roads API didn't work so try with the reverse geocoding
+                StringBuilder sb = new StringBuilder(REVGEO_API_BASE).append(OUT_JSON).append("?key=").append(API_KEY)
+                        .append("&latlng=").append(ff.getLat()).append(",").append(ff.getLng());
+                new HttpAsyncTaskRevGeo().execute(sb.toString());
+            }
+        }
+    }
+
+    private void processJSONObjectRevGeo(JSONObject res) {
+        if (res != null) {
+            if(res.has("results") && !res.isNull("results")) {
+                try {
+                    JSONArray addresses = res.getJSONArray("results");
+                    if (addresses.length() > 0) {
+                        JSONObject address = addresses.getJSONObject(0);
+
+                        if (address.has("geometry") && !address.isNull("geometry")) {
+                            JSONObject geom = address.getJSONObject("geometry");
+                            if (geom.has("location") && !geom.isNull("location")) {
+                                JSONObject loc = geom.getJSONObject("location");
+
+                                double lat = loc.getDouble("lat");
+                                double lng = loc.getDouble("lng");
+
+                                Intent intent = new Intent(this, StreetViewActivity.class);
+                                intent.putExtra("SV_LAT", lat);
+                                intent.putExtra("SV_LNG", lng);
+                                intent.putExtra("SV_LAT_NEXT", ff.getLat());
+                                intent.putExtra("SV_LNG_NEXT", ff.getLng());
+                                startActivity(intent);
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, "Cannot process JSON results", e);
+                }
+            }
+        }
+    }
 }

@@ -114,15 +114,15 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        MenuItem item = menu.findItem(R.id.menu_search);
+        //MenuItem item = menu.findItem(R.id.menu_search);
 
-        SearchView searchView = (SearchView)MenuItemCompat.getActionView(item);
+        //SearchView searchView = (SearchView)MenuItemCompat.getActionView(item);
 
-        if(searchView!=null) {
+        /*if(searchView!=null) {
             SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
             SearchableInfo info = searchManager.getSearchableInfo(getComponentName());
             searchView.setSearchableInfo(info);
-        }
+        }*/
         return true;
     }
 
