@@ -217,7 +217,7 @@ public class AnimateRouteActivity extends ActionBarActivity implements OnStreetV
     // Find the difference between angle a and b as a value between 0 and 180
     public static float findNormalizedDifference(float a, float b) {
         float diff = a - b;
-        float normalizedDiff = diff - (360.0f * FloatMath.floor(diff / 360.0f));
+        float normalizedDiff = diff - (360.0f * (float)Math.floor(diff / 360.0f));
         return (normalizedDiff < 180.0f) ? normalizedDiff : 360.0f - normalizedDiff;
     }
 
