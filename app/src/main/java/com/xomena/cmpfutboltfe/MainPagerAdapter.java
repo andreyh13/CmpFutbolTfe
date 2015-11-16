@@ -8,7 +8,7 @@ import android.content.Context;
 
 public class MainPagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 2;
-    private int tabTitles[] = new int[] { R.string.description, R.string.route_map };
+    private int tabTitles[] = new int[] { R.string.select_county, R.string.route_map };
     private Context context;
 
     public MainPagerAdapter(FragmentManager fragmentManager, Context context) {

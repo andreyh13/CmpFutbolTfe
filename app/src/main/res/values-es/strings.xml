@@ -4,7 +4,7 @@
     <string name="app_name">Campos de fútbol Tfe</string>
     <string name="hello_world">Hola mundo!</string>
     <string name="action_settings">Ajustes</string>
-    <string name="select_county">Por favor selecciona municipio</string>
+    <string name="select_county">Elige el municipio</string>
     <string name="title_activity_fields_list">Selecciona el campo</string>
     <string name="select_field">Por favor selecciona el campo</string>
     <string name="select_field_in">Por favor selecciona el campo en</string>
@@ -29,5 +29,5 @@
     <string name="stop">Parar</string>
     <string name="show_street_view">Mostrar vista de calle</string>
     <string name="last_path_point">Haz llegado al punto final de la ruta</string>
-    <string name="finished">Termindo</string>
+    <string name="finished">Terminado</string>
 </resources>

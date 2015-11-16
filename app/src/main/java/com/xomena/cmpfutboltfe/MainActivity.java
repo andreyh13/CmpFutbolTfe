@@ -1,8 +1,9 @@
 package com.xomena.cmpfutboltfe;
 
 import android.support.design.widget.TabLayout;
+import android.support.v7.widget.Toolbar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,8 +14,9 @@ import java.util.Map;
 
 import android.content.Intent;
 import android.widget.SearchView;
+import android.widget.TextView;
 
-public class MainActivity extends FragmentActivity implements CountiesFragment.OnFragmentInteractionListener,
+public class MainActivity extends AppCompatActivity implements CountiesFragment.OnFragmentInteractionListener,
         MainMapFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
     private static final String LOG_TAG = "MainActivity";
     protected static final String EXTRA_COUNTY = "com.xomena.cmpfutboltfe.COUNTY";
@@ -35,6 +37,12 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        // Get access to the custom title view
+        TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
 
         // Create the adapter that will return a fragment for each of the two primary sections
         // of the app.
@@ -85,7 +93,7 @@ public class MainActivity extends FragmentActivity implements CountiesFragment.O
         for(Fragment frag: fragments){
             if(frag instanceof MainMapFragment){
                 MainMapFragment mapFrag = (MainMapFragment)frag;
-                mapFrag.initializeMainMap(ff_data);
+                //mapFrag.initializeMainMap(ff_data);
                 break;
             }
         }

@@ -4,7 +4,7 @@
     <string name="app_name">Football pitches Tfe</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="select_county">Please select a county</string>
+    <string name="select_county">Select a county</string>
     <string name="title_activity_fields_list">Select the pitch</string>
     <string name="select_field">Please select a pitch</string>
     <string name="select_field_in">Please select a pitch in</string>
