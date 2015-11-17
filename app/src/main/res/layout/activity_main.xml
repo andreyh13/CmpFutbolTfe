@@ -17,8 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:titleTextColor="@android:color/white"
-            android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways">
+            android:background="?attr/colorPrimary">
             <TextView
                 android:id="@+id/toolbar_title"
                 android:layout_width="wrap_content"
@@ -44,7 +43,6 @@
         android:layout_width="match_parent"
         android:layout_height="0px"
         android:layout_weight="1"
-        android:background="@android:color/white"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:background="@android:color/white" />
 
 </android.support.design.widget.CoordinatorLayout>

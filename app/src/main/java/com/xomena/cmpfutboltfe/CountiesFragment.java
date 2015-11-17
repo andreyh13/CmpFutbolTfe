@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +49,7 @@ public class CountiesFragment extends Fragment {
     private static final String TAG = "CountiesFragment";
     private Map<String,List<FootballField>> ff_data;
     private OnFragmentInteractionListener mListener;
+    private RecyclerView mRecycler;
 
     /**
      * Use this factory method to create a new instance of
@@ -65,6 +68,36 @@ public class CountiesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        RecyclerView recyclerView = (RecyclerView) inflater.inflate(
+                R.layout.fragment_counties, container, false);
+        setupRecyclerView(recyclerView, savedInstanceState);
+        return recyclerView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        if(ff_data != null){
+            savedInstanceState.putStringArray(MainActivity.SAVED_KEYS, ff_data.keySet().toArray(new String[ff_data.keySet().size()]));
+            for(String key : ff_data.keySet()){
+                ArrayList<FootballField> af = new ArrayList<FootballField>(ff_data.get(key));
+                savedInstanceState.putParcelableArrayList(key, af);
+            }
+        }
+    }
+
+    private void setupRecyclerView(RecyclerView recyclerView, Bundle savedInstanceState) {
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
+        recyclerView.addItemDecoration(itemDecoration);
+        mRecycler = recyclerView;
 
         if(savedInstanceState!=null && savedInstanceState.containsKey(MainActivity.SAVED_KEYS)){
             String[] keys = savedInstanceState.getStringArray(MainActivity.SAVED_KEYS);
@@ -82,26 +115,6 @@ public class CountiesFragment extends Fragment {
             // call AsyncTask to perform network operation on separate thread
             String DATA_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyxqfsV0zdCKFRxgYYWPVO1PMshyhiuvTbvuKkkHjEGimPcdlpd/exec?jsonp=?";
             new HttpAsyncTask().execute(DATA_SERVICE_URL);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_counties, container, false);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        if(ff_data != null){
-            savedInstanceState.putStringArray(MainActivity.SAVED_KEYS, ff_data.keySet().toArray(new String[ff_data.keySet().size()]));
-            for(String key : ff_data.keySet()){
-                ArrayList<FootballField> af = new ArrayList<FootballField>(ff_data.get(key));
-                savedInstanceState.putParcelableArrayList(key, af);
-            }
         }
     }
 
@@ -231,7 +244,11 @@ public class CountiesFragment extends Fragment {
     }
 
     private void showCounties(String[] data){
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(),
+        CountyAdapter adapter = new CountyAdapter(County.createCountiesList(data));
+        // Attach the adapter to the recyclerview to populate items
+        mRecycler.setAdapter(adapter);
+
+        /*ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(),
                 android.R.layout.simple_list_item_1, data);
         ListView listView = (ListView) getActivity().findViewById(R.id.listView);
         listView.setAdapter(adapter);
@@ -241,7 +258,7 @@ public class CountiesFragment extends Fragment {
                 TextView selectedView = (TextView) v;
                 onCountyPressed(selectedView.getText().toString(), ff_data);
             }
-        });
+        });*/
 
         onInitializeFootballFields(ff_data);
     }
