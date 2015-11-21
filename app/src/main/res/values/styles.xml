@@ -30,6 +30,7 @@
 
     <style name="PitchesTfeTabLayout" parent="Widget.Design.TabLayout">
         <item name="tabTextAppearance">@style/PitchesTfeTabText</item>
+        <item name="tabBackground">@color/colorPrimary</item>
         <item name="tabSelectedTextColor">@color/md_yellow_500</item>
     </style>
 

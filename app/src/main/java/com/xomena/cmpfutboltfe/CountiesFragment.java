@@ -1,6 +1,7 @@
 package com.xomena.cmpfutboltfe;
 
 import android.app.Activity;
+import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -13,15 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -29,6 +22,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -47,9 +43,10 @@ import java.util.Map;
 public class CountiesFragment extends Fragment {
 
     private static final String TAG = "CountiesFragment";
+    private static final String DATA_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyxqfsV0zdCKFRxgYYWPVO1PMshyhiuvTbvuKkkHjEGimPcdlpd/exec?jsonp=?";
     private Map<String,List<FootballField>> ff_data;
     private OnFragmentInteractionListener mListener;
-    private RecyclerView mRecycler;
+    private CountyAdapter adapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -86,34 +83,42 @@ public class CountiesFragment extends Fragment {
         if(ff_data != null){
             savedInstanceState.putStringArray(MainActivity.SAVED_KEYS, ff_data.keySet().toArray(new String[ff_data.keySet().size()]));
             for(String key : ff_data.keySet()){
-                ArrayList<FootballField> af = new ArrayList<FootballField>(ff_data.get(key));
+                ArrayList<FootballField> af = new ArrayList<>(ff_data.get(key));
                 savedInstanceState.putParcelableArrayList(key, af);
             }
         }
     }
 
     private void setupRecyclerView(RecyclerView recyclerView, Bundle savedInstanceState) {
+        String[] items = new String[] {};
+        // Create adapter passing in the sample user data
+        adapter = new CountyAdapter(County.createCountiesList(items));
+        // Attach the adapter to the recyclerview to populate items
+        recyclerView.setAdapter(adapter);
+        // Set layout manager to position the items
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         RecyclerView.ItemDecoration itemDecoration = new
                 DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
         recyclerView.addItemDecoration(itemDecoration);
-        mRecycler = recyclerView;
 
         if(savedInstanceState!=null && savedInstanceState.containsKey(MainActivity.SAVED_KEYS)){
             String[] keys = savedInstanceState.getStringArray(MainActivity.SAVED_KEYS);
-            ff_data = new LinkedHashMap<String,List<FootballField>>();
-            for (String key : keys) {
-                ArrayList<Parcelable> al = savedInstanceState.getParcelableArrayList(key);
-                ArrayList<FootballField> af = new ArrayList<FootballField>();
-                for (Parcelable p : al) {
-                    af.add((FootballField) p);
+            ff_data = new LinkedHashMap<>();
+            if (keys != null && keys.length > 0) {
+                for (String key : keys) {
+                    ArrayList<Parcelable> al = savedInstanceState.getParcelableArrayList(key);
+                    ArrayList<FootballField> af = new ArrayList<>();
+                    if (al != null) {
+                        for (Parcelable p : al) {
+                            af.add((FootballField) p);
+                        }
+                    }
+                    ff_data.put(key, af);
                 }
-                ff_data.put(key, af);
+                showCounties(keys);
             }
-            showCounties(keys);
         } else {
             // call AsyncTask to perform network operation on separate thread
-            String DATA_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyxqfsV0zdCKFRxgYYWPVO1PMshyhiuvTbvuKkkHjEGimPcdlpd/exec?jsonp=?";
             new HttpAsyncTask().execute(DATA_SERVICE_URL);
         }
     }
@@ -131,12 +136,19 @@ public class CountiesFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Activity a;
+        if (context instanceof Activity){
+            a= (Activity) context;
+        } else {
+            a = getActivity();
+        }
+
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) a;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(a.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -158,30 +170,31 @@ public class CountiesFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        public void onObtainFootballFields(Map<String,List<FootballField>> ff_data);
-        public void onSelectCounty(String county, Map<String,List<FootballField>> ff_data);
+        void onObtainFootballFields(Map<String,List<FootballField>> ff_data);
+        void onSelectCounty(String county, Map<String,List<FootballField>> ff_data);
     }
 
     private String getFromUrl(String url) {
         String res = "";
-        InputStream content;
         // check if you are connected or not
         if(isConnected()) {
-            HttpClient httpclient = new DefaultHttpClient();
             try {
-                HttpResponse response = httpclient.execute(new HttpGet(url));
-                content = response.getEntity().getContent();
-                if(content !=null){
-                    try {
-                        res = CountiesFragment.convertInputStreamToString(content);
-                    } catch (IOException ex){
-                        Log.e(TAG, "IO exception", ex);
-                    }
+                URL urlobj = new URL(url);
+                HttpURLConnection conn = (HttpURLConnection) urlobj.openConnection();
+                conn.connect();
+                InputStream in = conn.getInputStream();
+                StringBuilder stringBuilder = new StringBuilder();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Network exception", e);
-            } finally {
-                httpclient.getConnectionManager().shutdown();
+                res = stringBuilder.toString();
+                conn.disconnect();
+            } catch (MalformedURLException ex) {
+                Log.e(TAG, "Malformed URL", ex);
+            } catch (IOException ex) {
+                Log.e(TAG, "IO error", ex);
             }
         } else {
             Log.d(TAG, "Network not connected");
@@ -196,18 +209,6 @@ public class CountiesFragment extends Fragment {
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    // convert input stream to String
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line;
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
-
-        inputStream.close();
-        return result;
-    }
-
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -216,7 +217,7 @@ public class CountiesFragment extends Fragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Map<String,List<FootballField>> res = new LinkedHashMap<String, List<FootballField>>();
+            Map<String,List<FootballField>> res = new LinkedHashMap<>();
             String json = (result.substring(0,result.length()-1)).substring(2);
 
             JSONArray js_arr;
@@ -243,22 +244,12 @@ public class CountiesFragment extends Fragment {
         }
     }
 
-    private void showCounties(String[] data){
-        CountyAdapter adapter = new CountyAdapter(County.createCountiesList(data));
-        // Attach the adapter to the recyclerview to populate items
-        mRecycler.setAdapter(adapter);
-
-        /*ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(),
-                android.R.layout.simple_list_item_1, data);
-        ListView listView = (ListView) getActivity().findViewById(R.id.listView);
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                TextView selectedView = (TextView) v;
-                onCountyPressed(selectedView.getText().toString(), ff_data);
+    private void showCounties(String[] data) {
+        if (data != null && data.length > 0) {
+            for (int i = 0; i < data.length; i++) {
+                adapter.addItem(new County(data[i]), i);
             }
-        });*/
+        }
 
         onInitializeFootballFields(ff_data);
     }

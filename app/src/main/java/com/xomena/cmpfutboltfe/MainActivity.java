@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import java.util.ArrayList;
@@ -13,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
-import android.widget.SearchView;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements CountiesFragment.OnFragmentInteractionListener,
         MainMapFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
@@ -28,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     protected static final String DIRECTIONS_API_BASE = "https://maps.googleapis.com/maps/api/directions";
     protected static final String OUT_JSON = "/json";
     protected static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
-    protected static final int QPS = 10;
+    //protected static final int QPS = 10;
 
     MainPagerAdapter mPagerAdapter;
     ViewPager mViewPager;
@@ -40,9 +39,11 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        // Get access to the custom title view
-        TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        try {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        } catch (NullPointerException e) {
+            Log.e(LOG_TAG, "Exception", e);
+        }
 
         // Create the adapter that will return a fragment for each of the two primary sections
         // of the app.
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
         for(Fragment frag: fragments){
             if(frag instanceof MainMapFragment){
                 MainMapFragment mapFrag = (MainMapFragment)frag;
-                //mapFrag.initializeMainMap(ff_data);
+                mapFrag.initializeMainMap(ff_data);
                 break;
             }
         }
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
         intent.putExtra(EXTRA_COUNTY, county);
         if(ff_data !=null && ff_data.containsKey(county)){
             List<FootballField> ff_list = ff_data.get(county);
-            intent.putParcelableArrayListExtra(EXTRA_FIELDS, new ArrayList<FootballField>(ff_list));
+            intent.putParcelableArrayListExtra(EXTRA_FIELDS, new ArrayList<>(ff_list));
         }
         startActivity(intent);
     }

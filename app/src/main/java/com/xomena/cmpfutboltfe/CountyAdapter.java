@@ -50,8 +50,7 @@ public class CountyAdapter extends
         View countyView = inflater.inflate(R.layout.item_county, parent, false);
 
         // Return a new holder instance
-        ViewHolder viewHolder = new ViewHolder(countyView);
-        return viewHolder;
+        return new ViewHolder(countyView);
     }
 
     // Involves populating data into the item through holder
@@ -69,5 +68,10 @@ public class CountyAdapter extends
     @Override
     public int getItemCount() {
         return mCounties.size();
+    }
+
+    public void addItem(County mCounty, int position) {
+        mCounties.add(position, mCounty);
+        notifyItemInserted(position);
     }
 }
