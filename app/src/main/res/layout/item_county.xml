@@ -6,14 +6,14 @@
     android:layout_height="match_parent"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
-    >
+    android:background="?android:attr/selectableItemBackground">
 
     <TextView
         android:id="@+id/county_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingLeft="@dimen/abc_control_padding_material"
+        android:paddingLeft="@dimen/abc_action_bar_content_inset_material"
         android:textSize="@dimen/abc_text_size_menu_material" />
 
 </LinearLayout>

@@ -29,11 +29,31 @@ public class CountyAdapter extends
             super(itemView);
 
             nameTextView = (TextView) itemView.findViewById(R.id.county_name);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Triggers click upwards to the adapter on click
+                    if (listener != null)
+                        listener.onItemClick(v, getLayoutPosition());
+                }
+            });
         }
     }
 
     // Store a member variable for the contacts
     private List<County> mCounties;
+    private static OnItemClickListener listener;
+
+    // Define the listener interface
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, int position);
+    }
+
+    // Define the method that allows the parent activity or fragment to define the listener
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     // Pass in the contact array into the constructor
     public CountyAdapter(List<County> counties) {

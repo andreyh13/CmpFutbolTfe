@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +41,7 @@ import java.util.Map;
  * Use the {@link CountiesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CountiesFragment extends Fragment {
+public class CountiesFragment extends Fragment implements CountyAdapter.OnItemClickListener {
 
     private static final String TAG = "CountiesFragment";
     private static final String DATA_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyxqfsV0zdCKFRxgYYWPVO1PMshyhiuvTbvuKkkHjEGimPcdlpd/exec?jsonp=?";
@@ -93,6 +94,7 @@ public class CountiesFragment extends Fragment {
         String[] items = new String[] {};
         // Create adapter passing in the sample user data
         adapter = new CountyAdapter(County.createCountiesList(items));
+        adapter.setOnItemClickListener(this);
         // Attach the adapter to the recyclerview to populate items
         recyclerView.setAdapter(adapter);
         // Set layout manager to position the items
@@ -120,6 +122,13 @@ public class CountiesFragment extends Fragment {
         } else {
             // call AsyncTask to perform network operation on separate thread
             new HttpAsyncTask().execute(DATA_SERVICE_URL);
+        }
+    }
+
+    public void onItemClick(View itemView, int position) {
+        TextView nameTextView = (TextView) itemView.findViewById(R.id.county_name);
+        if (nameTextView != null) {
+            onCountyPressed(nameTextView.getText().toString(), ff_data);
         }
     }
 
@@ -197,7 +206,7 @@ public class CountiesFragment extends Fragment {
                 Log.e(TAG, "IO error", ex);
             }
         } else {
-            Log.d(TAG, "Network not connected");
+            Log.d(TAG, "Network is not connected");
         }
         return res;
     }

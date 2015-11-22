@@ -1,6 +1,7 @@
 package com.xomena.cmpfutboltfe;
 
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
+import android.widget.ProgressBar;
 
 public class MainActivity extends AppCompatActivity implements CountiesFragment.OnFragmentInteractionListener,
         MainMapFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
 
     MainPagerAdapter mPagerAdapter;
     ViewPager mViewPager;
+    MenuItem mActionProgressItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +71,9 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        mActionProgressItem = menu.findItem(R.id.miActionProgress);
+        this.showProgressBar();
+
         //MenuItem item = menu.findItem(R.id.menu_search);
 
         //SearchView searchView = (SearchView)MenuItemCompat.getActionView(item);
@@ -90,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     }
 
     public void onObtainFootballFields(Map<String,List<FootballField>> ff_data){
+        this.hideProgressBar();
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         for(Fragment frag: fragments){
             if(frag instanceof MainMapFragment){
@@ -116,5 +123,17 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
 
     public void onSearchFootballField(){
 
+    }
+
+    private void showProgressBar () {
+        if (mActionProgressItem != null) {
+            mActionProgressItem.setVisible(true);
+        }
+    }
+
+    private void hideProgressBar() {
+        if (mActionProgressItem != null) {
+            mActionProgressItem.setVisible(false);
+        }
     }
 }
