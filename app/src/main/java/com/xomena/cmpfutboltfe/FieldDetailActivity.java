@@ -1,35 +1,31 @@
 package com.xomena.cmpfutboltfe;
 
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.AutocompletePrediction;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.GeoApiContext;
-import com.google.maps.GeocodingApi;
-import com.google.maps.GeocodingApiRequest;
-import com.google.maps.errors.ApiException;
-import com.google.maps.model.GeocodingResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,15 +33,13 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-
-public class FieldDetailActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class FieldDetailActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     private GoogleMap mMap;
 
     private static final String LOG_TAG = "FieldDetailActivity";
@@ -57,37 +51,85 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
     private static final String OUT_JSON = "/json";
 
     private static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
-    private static final int QPS = 10;
+    //private static final int QPS = 10;
 
     private FootballField ff;
     private JSONObject snappedPoints;
 
+    protected GoogleApiClient mGoogleApiClient;
+    private PlacesAutocompleteAdapter mAdapter;
+
+    private static final LatLngBounds BOUNDS_TENERIFE = new LatLngBounds(
+            new LatLng(27.9980726,-16.9259232), new LatLng(28.5893007,-16.1194386));
+
+    private AdapterView.OnItemClickListener mAutocompleteClickListener
+            = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            /*
+             Retrieve the place ID of the selected item from the Adapter.
+             The adapter stores each Place suggestion in a AutocompletePrediction from which we
+             read the place ID and title.
+              */
+            final AutocompletePrediction item = mAdapter.getItem(position);
+            final String placeId = item.getPlaceId();
+            final CharSequence primaryText = item.getPrimaryText(null);
+
+            Toast.makeText(getApplicationContext(), primaryText, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getApplicationContext(), RouteActivity.class);
+            intent.putExtra(MainActivity.EXTRA_ITEM, ff);
+            intent.putExtra(MainActivity.EXTRA_ADDRESS, primaryText.toString());
+            intent.putExtra(MainActivity.EXTRA_PLACEID, placeId);
+
+            startActivity(intent);
+
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, 0 /* clientId */, this)
+                .addApi(Places.GEO_DATA_API)
+                .build();
+
         setContentView(R.layout.activity_field_detail);
 
-        TextView title = (TextView)findViewById(R.id.fieldDetailCaption);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarDetails);
+        setSupportActionBar(toolbar);
+        try {
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setDisplayShowTitleEnabled(false);
+            }
+        } catch (NullPointerException e) {
+            Log.e(LOG_TAG, "Exception", e);
+        }
+
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+                getApplicationContext().getTheme());
+        toolbar.setNavigationIcon(upArrow);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         Intent i = getIntent();
         ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
 
+        TextView title = (TextView)findViewById(R.id.toolbar_title_details);
         title.setText(ff.getName());
 
         setUpMapIfNeeded(ff);
 
-        AutoCompleteTextView autoCompView = (AutoCompleteTextView) findViewById(R.id.fieldDetailEnterPlace);
-        autoCompView.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));
-        autoCompView.setOnItemClickListener(this);
-    }
-
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        String str = (String) adapterView.getItemAtPosition(position);
-        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, RouteActivity.class);
-        intent.putExtra(MainActivity.EXTRA_ITEM, ff);
-        intent.putExtra(MainActivity.EXTRA_ADDRESS,str);
-        startActivity(intent);
+        AutoCompleteTextView mAutocompleteView = (AutoCompleteTextView) findViewById(R.id.fieldDetailEnterPlace);
+        mAutocompleteView.setOnItemClickListener(mAutocompleteClickListener);
+        mAdapter = new PlacesAutocompleteAdapter(this, mGoogleApiClient, BOUNDS_TENERIFE, null);
+        mAutocompleteView.setAdapter(mAdapter);
     }
 
     private void setUpMapIfNeeded(FootballField ff) {
@@ -108,126 +150,7 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
         }
     }
 
-    private ArrayList<String> autocomplete(String input) {
-        ArrayList<String> resultList = null;
-
-        HttpURLConnection conn = null;
-        StringBuilder jsonResults = new StringBuilder();
-        try {
-            StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
-            sb.append("?key=" + API_KEY);
-            sb.append("&components=country:es");
-            sb.append("&location=28.2915637,-16.6291304&radius=70000");
-            sb.append("&input=" + URLEncoder.encode(input, "utf8"));
-
-            URL url = new URL(sb.toString());
-            conn = (HttpURLConnection) url.openConnection();
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-            // Load the results into a StringBuilder
-            int read;
-            char[] buff = new char[1024];
-            while ((read = in.read(buff)) != -1) {
-                jsonResults.append(buff, 0, read);
-            }
-        } catch (MalformedURLException e) {
-            Log.e(LOG_TAG, "Error processing Places API URL", e);
-            return resultList;
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error connecting to Places API", e);
-            return resultList;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-
-        try {
-            // Create a JSON object hierarchy from the results
-            JSONObject jsonObj = new JSONObject(jsonResults.toString());
-            JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
-
-            // Extract the Place descriptions from the results
-            resultList = new ArrayList<String>(predsJsonArray.length());
-            for (int i = 0; i < predsJsonArray.length(); i++) {
-                resultList.add(predsJsonArray.getJSONObject(i).getString("description"));
-            }
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, "Cannot process JSON results", e);
-        }
-
-        return resultList;
-    }
-
-    private class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
-        private ArrayList<String> resultList;
-
-        public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
-            super(context, textViewResourceId);
-        }
-
-        @Override
-        public int getCount() {
-            return resultList.size();
-        }
-
-        @Override
-        public String getItem(int index) {
-            return resultList.get(index);
-        }
-
-        @Override
-        public Filter getFilter() {
-            Filter filter = new Filter() {
-                @Override
-                protected FilterResults performFiltering(CharSequence constraint) {
-                    FilterResults filterResults = new FilterResults();
-                    if (constraint != null) {
-                        // Retrieve the autocomplete results.
-                        resultList = autocomplete(constraint.toString());
-
-                        // Assign the data to the FilterResults
-                        filterResults.values = resultList;
-                        filterResults.count = resultList.size();
-                    }
-                    return filterResults;
-                }
-
-                @Override
-                protected void publishResults(CharSequence constraint, FilterResults results) {
-                    if (results != null && results.count > 0) {
-                        notifyDataSetChanged();
-                    }
-                    else {
-                        notifyDataSetInvalidated();
-                    }
-                }};
-            return filter;
-        }
-    }
-
     public void onShowPitchStreetView(View view){
-        //The client library doesn't work on old versions of Android. Will comment this block and implement another one.
-        /*GeoApiContext context = new GeoApiContext().setApiKey(API_KEY).setQueryRateLimit(QPS);
-        try {
-            GeocodingApiRequest req = GeocodingApi.newRequest(context);
-            GeocodingResult[] results = req.latlng(new com.google.maps.model.LatLng(ff.getLat(),ff.getLng())).await();
-            if(results!=null && results.length>0){
-                GeocodingResult r = results[0];
-                if(r!=null && r.geometry!=null && r.geometry.location!=null){
-                    Intent intent = new Intent(this, StreetViewActivity.class);
-                    intent.putExtra("SV_LAT", r.geometry.location.lat);
-                    intent.putExtra("SV_LNG", r.geometry.location.lng);
-                    intent.putExtra("SV_LAT_NEXT", ff.getLat());
-                    intent.putExtra("SV_LNG_NEXT", ff.getLng());
-                    startActivity(intent);
-                }
-            }
-        } catch(ApiException e){
-            Log.e(LOG_TAG, e.getMessage());
-        } catch(Exception e){
-            Log.e(LOG_TAG, e.getMessage());
-        }*/
         try {
             StringBuilder sb = new StringBuilder(ROADS_API_BASE).append("?key=").append(API_KEY)
                     .append("&path=").append(ff.getLat()).append(",").append(ff.getLng());
@@ -378,5 +301,16 @@ public class FieldDetailActivity extends ActionBarActivity implements AdapterVie
                 }
             }
         }
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+        Log.e(LOG_TAG, "onConnectionFailed: ConnectionResult.getErrorCode() = "
+                + connectionResult.getErrorCode());
+
+        Toast.makeText(this,
+                "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
+                Toast.LENGTH_SHORT).show();
     }
 }

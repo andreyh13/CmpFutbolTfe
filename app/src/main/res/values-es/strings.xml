@@ -30,4 +30,5 @@
     <string name="show_street_view">Mostrar vista de calle</string>
     <string name="last_path_point">Haz llegado al punto final de la ruta</string>
     <string name="finished">Terminado</string>
+    <string name="poweredGoogle">Powered by Google</string>
 </resources>

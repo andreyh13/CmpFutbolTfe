@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     protected static final String EXTRA_ITEM = "com.xomena.cmpfutboltfe.ITEM";
     protected static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
     protected static final String EXTRA_ADDRESS = "com.xomena.cmpfutboltfe.ADDRESS";
+    protected static final String EXTRA_PLACEID = "com.xomena.cmpfutboltfe.PLACEID";
 
     protected static final String DIRECTIONS_API_BASE = "https://maps.googleapis.com/maps/api/directions";
     protected static final String OUT_JSON = "/json";
@@ -75,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         mActionProgressItem = menu.findItem(R.id.miActionProgress);
-        this.showProgressBar();
 
         //MenuItem item = menu.findItem(R.id.menu_search);
 
@@ -96,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         return id == R.id.action_settings || super.onOptionsItemSelected(item);
+    }
+
+    public void onStartAsyncTask() {
+        this.showProgressBar();
     }
 
     public void onObtainFootballFields(Map<String,List<FootballField>> ff_data){

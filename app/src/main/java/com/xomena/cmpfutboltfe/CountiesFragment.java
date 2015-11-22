@@ -48,6 +48,7 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
     private Map<String,List<FootballField>> ff_data;
     private OnFragmentInteractionListener mListener;
     private CountyAdapter adapter;
+    private boolean inProgressAsync = false;
 
     /**
      * Use this factory method to create a new instance of
@@ -121,6 +122,7 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
             }
         } else {
             // call AsyncTask to perform network operation on separate thread
+            inProgressAsync = true;
             new HttpAsyncTask().execute(DATA_SERVICE_URL);
         }
     }
@@ -156,6 +158,9 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
 
         try {
             mListener = (OnFragmentInteractionListener) a;
+            if (inProgressAsync) {
+                mListener.onStartAsyncTask();
+            }
         } catch (ClassCastException e) {
             throw new ClassCastException(a.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -181,6 +186,7 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
     public interface OnFragmentInteractionListener {
         void onObtainFootballFields(Map<String,List<FootballField>> ff_data);
         void onSelectCounty(String county, Map<String,List<FootballField>> ff_data);
+        void onStartAsyncTask();
     }
 
     private String getFromUrl(String url) {
@@ -250,6 +256,7 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
             ff_data = res;
             String[] data = res.keySet().toArray(new String[res.keySet().size()]);
             showCounties(data);
+            inProgressAsync = false;
         }
     }
 
