@@ -32,7 +32,7 @@
         </activity>
         <activity
             android:name=".FieldsListActivity"
-            android:label="@string/title_activity_fields_list" >
+            android:label="@string/title_activity_fields_list">
         </activity>
         <activity
             android:name=".FieldDetailActivity"

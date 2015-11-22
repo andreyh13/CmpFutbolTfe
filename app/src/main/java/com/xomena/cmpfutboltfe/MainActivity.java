@@ -1,7 +1,7 @@
 package com.xomena.cmpfutboltfe;
 
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.Fragment;
@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
-import android.widget.ProgressBar;
 
 public class MainActivity extends AppCompatActivity implements CountiesFragment.OnFragmentInteractionListener,
         MainMapFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
@@ -43,7 +42,11 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         try {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setDisplayShowTitleEnabled(false);
+                ab.setLogo(R.drawable.ic_stadion);
+            }
         } catch (NullPointerException e) {
             Log.e(LOG_TAG, "Exception", e);
         }

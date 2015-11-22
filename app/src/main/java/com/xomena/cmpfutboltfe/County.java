@@ -14,8 +14,6 @@ public class County {
         return mName;
     }
 
-    private static int lastCountyId = 0;
-
     public static List<County> createCountiesList(String[] data) {
         List<County> counties = new ArrayList<County>();
 

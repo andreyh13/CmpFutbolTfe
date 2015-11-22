@@ -1,59 +1,82 @@
 package com.xomena.cmpfutboltfe;
 
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
-public class FieldsListActivity extends ActionBarActivity {
+public class FieldsListActivity extends AppCompatActivity implements FootballFieldAdapter.OnItemClickListener {
 
     private List<FootballField> ff_data;
+    private static final String TAG = "FieldsListActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fields_list);
 
-        TextView title = (TextView)findViewById(R.id.textFieldsView);
-        ListView listView = (ListView)findViewById(R.id.listFieldsView);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarPitches);
+        setSupportActionBar(toolbar);
+        try {
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setDisplayShowTitleEnabled(false);
+            }
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Exception", e);
+        }
+
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+                getApplicationContext().getTheme());
+        toolbar.setNavigationIcon(upArrow);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         Intent i = getIntent();
         String county = i.getStringExtra(MainActivity.EXTRA_COUNTY);
         this.ff_data = i.getParcelableArrayListExtra(MainActivity.EXTRA_FIELDS);
 
-        title.setText(getString(R.string.select_field_in)+" "+county);
+        TextView title = (TextView)findViewById(R.id.toolbar_title_pitches);
+        title.setText(county);
 
-        ArrayList<FootballFieldItem> data = new ArrayList<FootballFieldItem>(ff_data.size());
-        for(FootballField f : ff_data){
-            data.add(new FootballFieldItem(f.getName(),f.getAddress(),f.getPhone()));
-        }
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvPitches);
 
-        FootballFieldAdapter adapter = new FootballFieldAdapter(this, data);
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                FootballFieldItem item = (FootballFieldItem)parent.getItemAtPosition(position);
-                gotoFieldDetails(item);
-            }
-        });
+        FootballFieldAdapter adapter = new FootballFieldAdapter(FootballFieldItem.createPitchesList(this.ff_data));
+        adapter.setOnItemClickListener(this);
+        // Attach the adapter to the recyclerview to populate items
+        recyclerView.setAdapter(adapter);
+        // Set layout manager to position the items
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST);
+        recyclerView.addItemDecoration(itemDecoration);
     }
 
-    private void gotoFieldDetails(FootballFieldItem item){
-        for(FootballField f : this.ff_data){
-            if(f.getName().equals(item.name)){
-                Intent intent = new Intent(this, FieldDetailActivity.class);
-                intent.putExtra(MainActivity.EXTRA_ITEM, f);
-                startActivity(intent);
+    public void onItemClick(View itemView, int position) {
+        TextView nameTextView = (TextView) itemView.findViewById(R.id.ffNameValue);
+        if (nameTextView != null) {
+            String mName = nameTextView.getText().toString();
+            for(FootballField f : this.ff_data){
+                if(f.getName().equals(mName)){
+                    Intent intent = new Intent(this, FieldDetailActivity.class);
+                    intent.putExtra(MainActivity.EXTRA_ITEM, f);
+                    startActivity(intent);
+                }
             }
         }
     }
