@@ -2,7 +2,6 @@ package com.xomena.cmpfutboltfe;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -31,30 +30,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-
-public class FieldDetailActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
-    private GoogleMap mMap;
+public class FieldDetailActivity extends AppCompatActivity
+        implements GoogleApiClient.OnConnectionFailedListener, WebServiceExec.OnWebServiceResult {
 
     private static final String LOG_TAG = "FieldDetailActivity";
 
-    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
-    private static final String ROADS_API_BASE = "https://roads.googleapis.com/v1/snapToRoads";
-    private static final String REVGEO_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
-    private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
-    private static final String OUT_JSON = "/json";
-
-    private static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
-    //private static final int QPS = 10;
-
+    private GoogleMap mMap;
     private FootballField ff;
-    private JSONObject snappedPoints;
 
     protected GoogleApiClient mGoogleApiClient;
     private PlacesAutocompleteAdapter mAdapter;
@@ -152,132 +134,52 @@ public class FieldDetailActivity extends AppCompatActivity implements GoogleApiC
 
     public void onShowPitchStreetView(View view){
         try {
-            StringBuilder sb = new StringBuilder(ROADS_API_BASE).append("?key=").append(API_KEY)
-                    .append("&path=").append(ff.getLat()).append(",").append(ff.getLng());
-            new HttpAsyncTask().execute(sb.toString());
+            String m_url = MainActivity.ROADS_API_BASE + "?path=" + ff.getLat() + "," + ff.getLng();
+            WebServiceExec m_exec = new WebServiceExec(WebServiceExec.WS_TYPE_ROADS, m_url, this);
+            m_exec.executeWS();
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error processing Roads API URL", e);
         }
     }
 
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            StringBuilder jsonResults = new StringBuilder();
-            HttpURLConnection conn = null;
-            try {
-                URL url = new URL(urls[0]);
-                conn = (HttpURLConnection) url.openConnection();
-                InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-                // Load the results into a StringBuilder
-                int read;
-                char[] buff = new char[1024];
-                while ((read = in.read(buff)) != -1) {
-                    jsonResults.append(buff, 0, read);
-                }
-            } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "Error processing Roads API URL", e);
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error connecting to Roads API", e);
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-            return jsonResults.toString();
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            try {
-                // Create a JSON object hierarchy from the results
-                snappedPoints = new JSONObject(result);
-                processJSONObject();
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "Cannot process JSON results", e);
-            }
-        }
-    }
-
-    private class HttpAsyncTaskRevGeo extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            StringBuilder jsonResults = new StringBuilder();
-            HttpURLConnection conn = null;
-            try {
-                URL url = new URL(urls[0]);
-                conn = (HttpURLConnection) url.openConnection();
-                InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-                // Load the results into a StringBuilder
-                int read;
-                char[] buff = new char[1024];
-                while ((read = in.read(buff)) != -1) {
-                    jsonResults.append(buff, 0, read);
-                }
-            } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "Error processing Geocoding API URL", e);
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error connecting to Geocoding API", e);
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-            return jsonResults.toString();
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            try {
-                // Create a JSON object hierarchy from the results
-                JSONObject m_revgeo = new JSONObject(result);
-                processJSONObjectRevGeo(m_revgeo);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "Cannot process JSON results", e);
-            }
-        }
-    }
-
-    private void processJSONObject(){
-        if(snappedPoints !=null){
-            if(snappedPoints.has("snappedPoints") && !snappedPoints.isNull("snappedPoints")){
+    @Override
+    public void onRoadsResult(JSONObject res) {
+        if(res != null) {
+            if(res.has("snappedPoints") && !res.isNull("snappedPoints")){
                 try {
-                    JSONArray points = snappedPoints.getJSONArray("snappedPoints");
-                    if(points.length()>0){
+                    JSONArray points = res.getJSONArray("snappedPoints");
+                    if(points.length() > 0) {
                         JSONObject point = points.getJSONObject(0);
 
                         double lat =  point.getJSONObject("location").getDouble("latitude");
                         double lng =  point.getJSONObject("location").getDouble("longitude");
+                        String placeId = point.getString("placeId");
 
-                        Intent intent = new Intent(this, StreetViewActivity.class);
-                        intent.putExtra("SV_LAT", lat);
-                        intent.putExtra("SV_LNG", lng);
-                        intent.putExtra("SV_LAT_NEXT", ff.getLat());
-                        intent.putExtra("SV_LNG_NEXT", ff.getLng());
-                        startActivity(intent);
-
+                        startSV(lat, lng, placeId);
                     }
                 } catch(JSONException e){
                     Log.e(LOG_TAG, "Cannot process JSON results", e);
                 }
             } else {
                 //Roads API didn't work so try with the reverse geocoding
-                StringBuilder sb = new StringBuilder(REVGEO_API_BASE).append(OUT_JSON).append("?key=").append(API_KEY)
-                        .append("&latlng=").append(ff.getLat()).append(",").append(ff.getLng());
-                new HttpAsyncTaskRevGeo().execute(sb.toString());
+                String m_url = MainActivity.GEOCODE_API_BASE + MainActivity.OUT_JSON + "?latlng=" +
+                        ff.getLat() + "," + ff.getLng();
+                WebServiceExec m_exec = new WebServiceExec(WebServiceExec.WS_TYPE_GEOCODE, m_url, this);
+                m_exec.executeWS();
             }
         }
     }
 
-    private void processJSONObjectRevGeo(JSONObject res) {
+    @Override
+    public void onGeocodeResult(JSONObject res) {
         if (res != null) {
             if(res.has("results") && !res.isNull("results")) {
                 try {
                     JSONArray addresses = res.getJSONArray("results");
                     if (addresses.length() > 0) {
                         JSONObject address = addresses.getJSONObject(0);
+
+                        String placeId = address.getString("place_id");
 
                         if (address.has("geometry") && !address.isNull("geometry")) {
                             JSONObject geom = address.getJSONObject("geometry");
@@ -287,12 +189,7 @@ public class FieldDetailActivity extends AppCompatActivity implements GoogleApiC
                                 double lat = loc.getDouble("lat");
                                 double lng = loc.getDouble("lng");
 
-                                Intent intent = new Intent(this, StreetViewActivity.class);
-                                intent.putExtra("SV_LAT", lat);
-                                intent.putExtra("SV_LNG", lng);
-                                intent.putExtra("SV_LAT_NEXT", ff.getLat());
-                                intent.putExtra("SV_LNG_NEXT", ff.getLng());
-                                startActivity(intent);
+                                startSV(lat, lng, placeId);
                             }
                         }
                     }
@@ -304,6 +201,11 @@ public class FieldDetailActivity extends AppCompatActivity implements GoogleApiC
     }
 
     @Override
+    public void onDirectionsResult(JSONObject res) {
+        //Empty method
+    }
+
+    @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
         Log.e(LOG_TAG, "onConnectionFailed: ConnectionResult.getErrorCode() = "
@@ -312,5 +214,15 @@ public class FieldDetailActivity extends AppCompatActivity implements GoogleApiC
         Toast.makeText(this,
                 "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
                 Toast.LENGTH_SHORT).show();
+    }
+
+    private void startSV (double lat, double lng, String placeId) {
+        Intent intent = new Intent(this, StreetViewActivity.class);
+        intent.putExtra("SV_LAT", lat);
+        intent.putExtra("SV_LNG", lng);
+        intent.putExtra("SV_LAT_NEXT", ff.getLat());
+        intent.putExtra("SV_LNG_NEXT", ff.getLng());
+        intent.putExtra("SV_PLACEID", placeId);
+        startActivity(intent);
     }
 }

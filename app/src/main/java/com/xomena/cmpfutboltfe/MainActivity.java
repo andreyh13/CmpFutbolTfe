@@ -19,6 +19,7 @@ import android.content.Intent;
 public class MainActivity extends AppCompatActivity implements CountiesFragment.OnFragmentInteractionListener,
         MainMapFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
     private static final String LOG_TAG = "MainActivity";
+
     protected static final String EXTRA_COUNTY = "com.xomena.cmpfutboltfe.COUNTY";
     protected static final String EXTRA_FIELDS = "com.xomena.cmpfutboltfe.FIELDS";
     protected static final String EXTRA_ITEM = "com.xomena.cmpfutboltfe.ITEM";
@@ -27,7 +28,20 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     protected static final String EXTRA_PLACEID = "com.xomena.cmpfutboltfe.PLACEID";
 
     protected static final String DIRECTIONS_API_BASE = "https://maps.googleapis.com/maps/api/directions";
+    protected static final String ROADS_API_BASE = "https://roads.googleapis.com/v1/snapToRoads";
+    protected static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
     protected static final String OUT_JSON = "/json";
+
+    protected static final String XOMENA_DOMAIN = "http://aux.xomena.elementfx.com";
+    protected static final String XOMENA_WS_PROXY = "/geows.php";
+
+    protected static final String[] API_KEYS = new String[] {
+            "AIzaSyAf5x1KKZAiW5XIm5Nop1sD7NrGY9hAsgE",
+            "AIzaSyDHK8_Oudx__GQszqPD8ukVMnrJQaMNWYk",
+            "AIzaSyBwrb2-1hlA0AkiI9aiNO3kq2t_8wk11vY",
+            "AIzaSyCdNXAWPRXQRnfw23M8PJoUkm_R2jFTZWs"
+    };
+
     protected static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
     //protected static final int QPS = 10;
 

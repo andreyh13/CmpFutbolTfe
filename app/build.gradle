@@ -46,4 +46,5 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:8.3.0'
     compile 'com.google.maps:google-maps-services:0.1.9'
     compile 'com.google.maps.android:android-maps-utils:0.4'
+    compile 'com.turbomanage.basic-http-client:http-client-android:0.89'
 }
