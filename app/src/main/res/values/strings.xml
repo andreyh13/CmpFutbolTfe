@@ -31,4 +31,5 @@
     <string name="last_path_point">You have reached the final position of the route</string>
     <string name="finished">Finished</string>
     <string name="poweredGoogle">Powered by Google</string>
+    <string name="no_panorama">Unfortunately, the street view cannot be found for this location</string>
 </resources>

@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -193,9 +194,10 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
         String res = "";
         // check if you are connected or not
         if(isConnected()) {
+            HttpURLConnection conn = null;
             try {
                 URL urlobj = new URL(url);
-                HttpURLConnection conn = (HttpURLConnection) urlobj.openConnection();
+                conn = (HttpURLConnection) urlobj.openConnection();
                 conn.connect();
                 InputStream in = conn.getInputStream();
                 StringBuilder stringBuilder = new StringBuilder();
@@ -205,14 +207,18 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
                     stringBuilder.append(line);
                 }
                 res = stringBuilder.toString();
-                conn.disconnect();
             } catch (MalformedURLException ex) {
                 Log.e(TAG, "Malformed URL", ex);
             } catch (IOException ex) {
                 Log.e(TAG, "IO error", ex);
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
             }
         } else {
             Log.d(TAG, "Network is not connected");
+            Toast.makeText(getActivity(), "Network is not connected", Toast.LENGTH_SHORT).show();
         }
         return res;
     }

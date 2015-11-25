@@ -19,6 +19,7 @@ public class FootballField implements Parcelable {
     private double lat;
     private double lng;
     private String type;
+    private String placeId;
 
     /**
      * Constructor
@@ -53,6 +54,9 @@ public class FootballField implements Parcelable {
                   case 7:
                       this.type = js_val.getString(i);
                       break;
+                  case 8:
+                      this.placeId = js_val.getString(i);
+                      break;
                   default:
                       break;
               }
@@ -72,6 +76,7 @@ public class FootballField implements Parcelable {
         this.lat = source.readDouble();
         this.lng = source.readDouble();
         this.type = source.readString();
+        this.placeId = source.readString();
     }
 
     /**
@@ -109,6 +114,10 @@ public class FootballField implements Parcelable {
         return this.type;
     }
 
+    public String getPlaceId() {
+        return this.placeId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -124,6 +133,7 @@ public class FootballField implements Parcelable {
         p.writeDouble(this.lat);
         p.writeDouble(this.lng);
         p.writeString(this.type);
+        p.writeString(this.placeId);
     }
 
     public static final Parcelable.Creator<FootballField> CREATOR = new Parcelable.Creator<FootballField>() {

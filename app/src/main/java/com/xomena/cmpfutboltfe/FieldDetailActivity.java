@@ -223,6 +223,7 @@ public class FieldDetailActivity extends AppCompatActivity
         intent.putExtra("SV_LAT_NEXT", ff.getLat());
         intent.putExtra("SV_LNG_NEXT", ff.getLng());
         intent.putExtra("SV_PLACEID", placeId);
+        intent.putExtra("SV_TITLE", ff.getName());
         startActivity(intent);
     }
 }
