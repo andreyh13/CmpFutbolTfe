@@ -1,19 +1,20 @@
 package com.xomena.cmpfutboltfe;
 
-import android.app.ActionBar;
-import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.text.Html;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,7 +34,7 @@ import org.json.JSONObject;
 import java.util.List;
 
 
-public class RouteActivity extends FragmentActivity implements ActionBar.TabListener,
+public class RouteActivity extends AppCompatActivity implements
         RouteMapFragment.OnFragmentInteractionListener, DirectionsMapFragment.OnFragmentInteractionListener {
 
     private static final String LOG_TAG = "RouteActivity";
@@ -50,68 +51,60 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route);
 
-        // Create the adapter that will return a fragment for each of the three primary sections
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarRoute);
+        setSupportActionBar(toolbar);
+        try {
+            android.support.v7.app.ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setDisplayShowTitleEnabled(false);
+            }
+        } catch (NullPointerException e) {
+            Log.e(LOG_TAG, "Exception", e);
+        }
+
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+                getApplicationContext().getTheme());
+        toolbar.setNavigationIcon(upArrow);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        // Create the adapter that will return a fragment for each of the two primary sections
         // of the app.
-        mPagerAdapter = new SimplePagerAdapter(getSupportFragmentManager());
-
-        // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
-
-        // Specify that we will be displaying tabs in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        mPagerAdapter = new SimplePagerAdapter(getSupportFragmentManager(), this);
 
         // Set up the ViewPager, attaching the adapter and setting up a listener for when the
         // user swipes between sections.
         mViewPager = (ViewPager) findViewById(R.id.fragmentPager);
         mViewPager.setAdapter(mPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // When swiping between different app sections, select the corresponding tab.
-                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                // Tab.
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
 
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int k = 0; k < mPagerAdapter.getCount(); k++) {
-            // Create a tab with text corresponding to the page title defined by the adapter.
-            // Also specify this Activity object, which implements the TabListener interface, as the
-            // listener for when this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mPagerAdapter.getPageTitle(k))
-                            .setTabListener(this));
-        }
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs_route);
+        tabLayout.setupWithViewPager(mViewPager);
 
         Intent i = getIntent();
         ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
-    }
 
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, switch to the corresponding page in the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        TextView title = (TextView)findViewById(R.id.toolbar_title_route);
+        title.setText(getString(R.string.route_to) + " " + ff.getName());
     }
 
     public static class SimplePagerAdapter extends FragmentPagerAdapter {
+        final int PAGE_COUNT = 2;
+        private int tabTitles[] = new int[] { R.string.description, R.string.route_map };
+        private Context context;
 
-        public SimplePagerAdapter(FragmentManager fragmentManager) {
+        public SimplePagerAdapter(FragmentManager fragmentManager, Context context) {
             super(fragmentManager);
+            this.context = context;
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return PAGE_COUNT;
         }
 
         @Override
@@ -128,14 +121,7 @@ public class RouteActivity extends FragmentActivity implements ActionBar.TabList
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "Description"; //Resources.getSystem().getString(R.string.description);
-                case 1:
-                    return "Map"; //Resources.getSystem().getString(R.string.route_map);
-                default:
-                    return null;
-            }
+            return context.getString(tabTitles[position]);
         }
     }
 

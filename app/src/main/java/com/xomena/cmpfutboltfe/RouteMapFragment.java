@@ -1,19 +1,19 @@
 package com.xomena.cmpfutboltfe;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -22,12 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -42,16 +37,21 @@ import java.util.List;
  * Use the {@link RouteMapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RouteMapFragment extends Fragment {
+public class RouteMapFragment extends Fragment implements RouteStepAdapter.OnItemClickListener,
+        WebServiceExec.OnWebServiceResult {
 
     private static final String LOG_TAG = "RouteMapFragment";
 
     private JSONObject jsonRoute;
-    private List<LatLng> stepLatLng = new LinkedList<LatLng>();
+    private List<LatLng> stepLatLng = new LinkedList<>();
     private double ff_lat;
     private double ff_lng;
+    private String origPlaceId;
+    private String address;
+    private String destPlaceId;
 
     private OnFragmentInteractionListener mListener;
+    private RouteStepAdapter adapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -60,8 +60,7 @@ public class RouteMapFragment extends Fragment {
      * @return A new instance of fragment RouteMapFragment.
      */
     public static RouteMapFragment newInstance() {
-        RouteMapFragment fragment = new RouteMapFragment();
-        return fragment;
+        return new RouteMapFragment();
     }
 
     public RouteMapFragment() {
@@ -75,26 +74,69 @@ public class RouteMapFragment extends Fragment {
         Intent i = getActivity().getIntent();
         FootballField ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
 
-        String address = i.getStringExtra(MainActivity.EXTRA_ADDRESS);
+        address = i.getStringExtra(MainActivity.EXTRA_ADDRESS);
+        origPlaceId = i.getStringExtra(MainActivity.EXTRA_PLACEID);
         ff_lat = ff.getLat();
         ff_lng = ff.getLng();
-        getRoute(address, ff_lat, ff_lng);
+        destPlaceId = ff.getPlaceId();
+
+        getRoute(false);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_route_map, container, false);
+        FrameLayout frameRoute = (FrameLayout) inflater.inflate(R.layout.fragment_route_map, container, false);
+        RecyclerView rvRoute = (RecyclerView) frameRoute.findViewById(R.id.rvRoute);
+        Spanned[] items = new Spanned[] {};
+        // Create adapter passing in the sample user data
+        adapter = new RouteStepAdapter(RouteStep.createRouteStepsList(items));
+        adapter.setOnItemClickListener(this);
+        // Attach the adapter to the recyclerview to populate items
+        rvRoute.setAdapter(adapter);
+        // Set layout manager to position the items
+        rvRoute.setLayoutManager(new LinearLayoutManager(getActivity()));
+        RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
+        rvRoute.addItemDecoration(itemDecoration);
+
+        return frameRoute;
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onItemClick(View itemView, int position) {
+        TextView stepTextView = (TextView) itemView.findViewById(R.id.route_step);
+        if (stepTextView != null) {
+            Intent intent = new Intent(getActivity(), StreetViewActivity.class);
+            LatLng location = stepLatLng.get(position);
+            intent.putExtra("SV_LAT", location.latitude);
+            intent.putExtra("SV_LNG", location.longitude);
+            if(position==stepLatLng.size()-1){
+                intent.putExtra("SV_LAT_NEXT", ff_lat);
+                intent.putExtra("SV_LNG_NEXT", ff_lng);
+            } else {
+                intent.putExtra("SV_LAT_NEXT", stepLatLng.get(position+1).latitude);
+                intent.putExtra("SV_LNG_NEXT", stepLatLng.get(position+1).longitude);
+            }
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Activity a;
+        if (context instanceof Activity){
+            a= (Activity) context;
+        } else {
+            a = getActivity();
+        }
+
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) a;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(a.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -116,61 +158,7 @@ public class RouteMapFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        public void exchangeJSON(JSONObject json);
-    }
-
-    private void getRoute(String address, double fLat, double fLon) {
-        try {
-            StringBuilder sb = new StringBuilder(MainActivity.DIRECTIONS_API_BASE).append(MainActivity.OUT_JSON)
-                    .append("?key=").append(MainActivity.API_KEY)
-                    .append("&origin=").append(URLEncoder.encode(address, "utf8"))
-                    .append("&destination=").append(fLat).append(",").append(fLon)
-                    .append("&language=es&units=metric&region=es");
-            new HttpAsyncTask().execute(sb.toString());
-        } catch (UnsupportedEncodingException e) {
-            Log.e(LOG_TAG, "Error processing Directions API URL", e);
-        }
-    }
-
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            StringBuilder jsonResults = new StringBuilder();
-            HttpURLConnection conn = null;
-            try {
-                URL url = new URL(urls[0]);
-                conn = (HttpURLConnection) url.openConnection();
-                InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-                // Load the results into a StringBuilder
-                int read;
-                char[] buff = new char[1024];
-                while ((read = in.read(buff)) != -1) {
-                    jsonResults.append(buff, 0, read);
-                }
-            } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "Error processing Directions API URL", e);
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error connecting to Directions API", e);
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-            return jsonResults.toString();
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            try {
-                // Create a JSON object hierarchy from the results
-                jsonRoute = new JSONObject(result);
-                processJSONObject();
-                mListener.exchangeJSON(jsonRoute);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "Cannot process JSON results", e);
-            }
-        }
+        void exchangeJSON(JSONObject json);
     }
 
     private void processJSONObject(){
@@ -181,12 +169,17 @@ public class RouteMapFragment extends Fragment {
                         JSONArray rts = jsonRoute.getJSONArray("routes");
                         if(rts != null && rts.length() > 0 && !rts.isNull(0)) {
                             JSONObject r = rts.getJSONObject(0);
-                            List<Spanned> listSteps = new ArrayList<Spanned>();
+                            List<Spanned> listSteps = new ArrayList<>();
 
                             //Title
                             if(r.has("summary") && !r.isNull("summary")){
-                                TextView title = (TextView)getView().findViewById(R.id.routeTitle);
-                                title.setText(r.getString("summary"));
+                                View v = getView();
+                                if (v != null) {
+                                    TextView title = (TextView) getView().findViewById(R.id.routeTitle);
+                                    if (title != null) {
+                                        title.setText(r.getString("summary"));
+                                    }
+                                }
                             }
 
                             //Warnings
@@ -272,27 +265,11 @@ public class RouteMapFragment extends Fragment {
                             }
 
                             Spanned[] data = listSteps.toArray(new Spanned[listSteps.size()]);
-                            ArrayAdapter<Spanned> adapter = new ArrayAdapter<Spanned>(this.getActivity(),
-                                    android.R.layout.simple_list_item_1, data);
-                            ListView listView = (ListView) getActivity().findViewById(R.id.routeListView);
-                            listView.setAdapter(adapter);
-
-                            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                                    Intent intent = new Intent(getActivity(), StreetViewActivity.class);
-                                    LatLng location = stepLatLng.get(position);
-                                    intent.putExtra("SV_LAT", location.latitude);
-                                    intent.putExtra("SV_LNG", location.longitude);
-                                    if(position==stepLatLng.size()-1){
-                                        intent.putExtra("SV_LAT_NEXT", ff_lat);
-                                        intent.putExtra("SV_LNG_NEXT", ff_lng);
-                                    } else {
-                                        intent.putExtra("SV_LAT_NEXT", stepLatLng.get(position+1).latitude);
-                                        intent.putExtra("SV_LNG_NEXT", stepLatLng.get(position+1).longitude);
-                                    }
-                                    startActivity(intent);
+                            if (data.length > 0) {
+                                for (int i = 0; i < data.length; i++) {
+                                    adapter.addItem(new RouteStep(data[i]), i);
                                 }
-                            });
+                            }
 
                             //Copyrights
                             if(r.has("copyrights") && !r.isNull("copyrights")){
@@ -305,6 +282,55 @@ public class RouteMapFragment extends Fragment {
             } catch(JSONException e){
                 Log.e(LOG_TAG, "Cannot process JSON results", e);
             }
+        }
+    }
+
+    @Override
+    public void onRoadsResult(JSONObject res) {
+        //Empty method
+    }
+
+    @Override
+    public void onGeocodeResult(JSONObject res) {
+        //Empty method
+    }
+
+    @Override
+    public void onDirectionsResult(JSONObject res) {
+        // Create a JSON object hierarchy from the results
+        try {
+            if (res.has("status") && res.getString("status").equals("NOT_FOUND")) {
+                getRoute(true);
+            } else {
+                jsonRoute = res;
+                processJSONObject();
+                mListener.exchangeJSON(jsonRoute);
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "JSON exception", e);
+        }
+    }
+
+    private void getRoute(boolean noPlaces) {
+        String orig;
+        String dest;
+        try {
+            if (noPlaces) {
+                orig = URLEncoder.encode(address, "utf8");
+                dest = ff_lat + "," + ff_lng;
+            } else {
+                orig = (origPlaceId != null && !"".equals(origPlaceId)) ? "place_id:" + origPlaceId :
+                        URLEncoder.encode(address, "utf8");
+                dest = (destPlaceId != null && !"".equals(destPlaceId)) ?
+                        "place_id:" + destPlaceId : ff_lat + "," + ff_lng;
+            }
+
+            String m_url = MainActivity.DIRECTIONS_API_BASE + MainActivity.OUT_JSON +
+                    "?origin=" + orig + "&destination=" + dest + "&language=es&units=metric&region=es";
+            WebServiceExec m_exec = new WebServiceExec(WebServiceExec.WS_TYPE_DIRECTIONS, m_url, this);
+            m_exec.executeWS();
+        } catch (UnsupportedEncodingException e) {
+            Log.e(LOG_TAG, "Error processing Directions API URL", e);
         }
     }
 }

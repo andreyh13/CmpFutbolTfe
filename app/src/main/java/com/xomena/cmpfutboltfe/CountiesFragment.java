@@ -128,6 +128,7 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
         }
     }
 
+    @Override
     public void onItemClick(View itemView, int position) {
         TextView nameTextView = (TextView) itemView.findViewById(R.id.county_name);
         if (nameTextView != null) {
