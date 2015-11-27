@@ -133,12 +133,16 @@ public class FieldDetailActivity extends AppCompatActivity
     }
 
     public void onShowPitchStreetView(View view){
-        try {
-            String m_url = MainActivity.ROADS_API_BASE + "?path=" + ff.getLat() + "," + ff.getLng();
-            WebServiceExec m_exec = new WebServiceExec(WebServiceExec.WS_TYPE_ROADS, m_url, this);
-            m_exec.executeWS();
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Error processing Roads API URL", e);
+        if (ff.getAccessLat() != 0 && ff.getAccessLng() != 0) {
+            startSV(ff.getAccessLat(), ff.getAccessLng(), ff.getPlaceId());
+        } else {
+            try {
+                String m_url = MainActivity.ROADS_API_BASE + "?path=" + ff.getLat() + "," + ff.getLng();
+                WebServiceExec m_exec = new WebServiceExec(WebServiceExec.WS_TYPE_ROADS, m_url, this);
+                m_exec.executeWS();
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error processing Roads API URL", e);
+            }
         }
     }
 

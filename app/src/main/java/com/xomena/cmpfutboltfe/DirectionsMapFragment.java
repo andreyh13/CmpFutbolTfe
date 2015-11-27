@@ -1,20 +1,14 @@
 package com.xomena.cmpfutboltfe;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 
@@ -42,7 +36,6 @@ public class DirectionsMapFragment extends Fragment {
      */
     public static DirectionsMapFragment newInstance() {
         DirectionsMapFragment fragment = new DirectionsMapFragment();
-        //fragment.setJSON(json);
         return fragment;
     }
 
@@ -67,12 +60,19 @@ public class DirectionsMapFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Activity a;
+        if (context instanceof Activity){
+            a= (Activity) context;
+        } else {
+            a = getActivity();
+        }
+
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) a;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(a.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -94,7 +94,7 @@ public class DirectionsMapFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        public void onDirectionsMapClick();
-        public void onRouteAnimationClick();
+        void onDirectionsMapClick();
+        void onRouteAnimationClick();
     }
 }
