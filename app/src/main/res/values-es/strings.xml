@@ -32,5 +32,5 @@
     <string name="finished">Terminado</string>
     <string name="poweredGoogle">Powered by Google</string>
     <string name="no_panorama">Por desgracia, la vista de la calle no puede ser encontrada para esta ubicación</string>
-    <string name="route_to">La ruta al</string>
+    <string name="route_to">La ruta al %1$s</string>
 </resources>

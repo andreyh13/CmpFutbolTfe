@@ -1,19 +1,31 @@
 package com.xomena.cmpfutboltfe;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.support.v7.app.ActionBarActivity;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.os.Bundle;
-import android.util.FloatMath;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.StreetViewPanoramaFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
 import com.google.android.gms.maps.model.StreetViewPanoramaLink;
 import com.google.android.gms.maps.model.StreetViewPanoramaLocation;
@@ -24,7 +36,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class AnimateRouteActivity extends ActionBarActivity implements OnStreetViewPanoramaReadyCallback {
+public class AnimateRouteActivity extends AppCompatActivity implements OnStreetViewPanoramaReadyCallback {
+
+    private static final String LOG_TAG = "AnimateRouteActivity";
 
     private String polyline;
     private FootballField ff;
@@ -33,19 +47,38 @@ public class AnimateRouteActivity extends ActionBarActivity implements OnStreetV
     private StreetViewPanorama mStreetViewPanorama;
     private int position = 0;
     private Timer timer;
-    private Button btnAnimate;
+    private FloatingActionButton btnAnimate;
+    private GoogleMap map;
+    private Marker posMarker;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_animate_route);
 
-        StreetViewPanoramaFragment streetViewPanoramaFragment =
-                (StreetViewPanoramaFragment) getFragmentManager()
-                        .findFragmentById(R.id.routepanorama);
-        streetViewPanoramaFragment.getStreetViewPanoramaAsync(this);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarAnimate);
+        setSupportActionBar(toolbar);
+        try {
+            ActionBar ab = getSupportActionBar();
+            if (ab != null) {
+                ab.setDisplayShowTitleEnabled(false);
+            }
+        } catch (NullPointerException e) {
+            Log.e(LOG_TAG, "Exception", e);
+        }
 
-        btnAnimate = (Button)findViewById(R.id.move_position);
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+                getApplicationContext().getTheme());
+        toolbar.setNavigationIcon(upArrow);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        btnAnimate = (FloatingActionButton)findViewById(R.id.move_position);
 
         Intent i = getIntent();
         polyline = i.getStringExtra("ENC_POLY");
@@ -54,6 +87,29 @@ public class AnimateRouteActivity extends ActionBarActivity implements OnStreetV
             interpolated = interpolatePath();
         }
         ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
+
+        TextView title = (TextView)findViewById(R.id.toolbar_title_animate);
+        title.setText(String.format(getString(R.string.route_to),ff.getName()));
+
+        MapFragment mapFrag = (MapFragment)
+                getFragmentManager().findFragmentById(R.id.animate_map);
+        if(mapFrag!=null && polyline != null) {
+            map = mapFrag.getMap();
+            if (map != null) {
+                PolylineOptions polyOptions = new PolylineOptions().addAll(path);
+                map.addPolyline(polyOptions);
+
+                posMarker = map.addMarker(new MarkerOptions()
+                        .position(path.get(0)).anchor(0.5f, 0.5f).draggable(false)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_point)));
+            }
+        }
+
+        StreetViewPanoramaFragment streetViewPanoramaFragment =
+                (StreetViewPanoramaFragment) getFragmentManager()
+                        .findFragmentById(R.id.routepanorama);
+        streetViewPanoramaFragment.getStreetViewPanoramaAsync(this);
+
     }
 
     @Override
@@ -61,6 +117,16 @@ public class AnimateRouteActivity extends ActionBarActivity implements OnStreetV
         mStreetViewPanorama = panorama;
         if(polyline!=null && path!=null && path.size()>0){
             panorama.setPosition(path.get(0), 20);
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for(LatLng coord : path){
+                builder.include(coord);
+            }
+            LatLngBounds m_bounds = builder.build();
+
+            if (map != null) {
+                map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
+            }
         }
     }
 
@@ -68,12 +134,12 @@ public class AnimateRouteActivity extends ActionBarActivity implements OnStreetV
         if(timer != null){
             timer.cancel();
             timer = null;
-            btnAnimate.setText(R.string.start);
+            btnAnimate.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
         } else {
             timer = new Timer();
             AnimateRouteTimerTask myTimerTask = new AnimateRouteTimerTask();
             timer.schedule(myTimerTask, 1000, 2000);
-            btnAnimate.setText(R.string.stop);
+            btnAnimate.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
         }
         moveCameraToNextPosition(interpolated);
     }
@@ -149,6 +215,18 @@ public class AnimateRouteActivity extends ActionBarActivity implements OnStreetV
         }
     }
 
+    private void movePositionalMarker () {
+        if (posMarker != null && mStreetViewPanorama != null) {
+            StreetViewPanoramaLocation loc = mStreetViewPanorama.getLocation();
+            if (loc != null) {
+                LatLng pos = loc.position;
+                if (pos != null) {
+                    posMarker.setPosition(pos);
+                }
+            }
+        }
+    }
+
     class AnimateRouteTimerTask extends TimerTask {
 
         @Override
@@ -159,13 +237,14 @@ public class AnimateRouteActivity extends ActionBarActivity implements OnStreetV
                 public void run() {
                     moveToNextPosition(interpolated);
                     moveCameraToNextPosition(interpolated);
+                    movePositionalMarker();
 
                     if(position == path.size() -1){
                         if(timer != null) {
                             timer.cancel();
                             timer = null;
                             btnAnimate.setClickable(false);
-                            btnAnimate.setText(R.string.finished);
+                            btnAnimate.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
                         }
                     }
                 }

@@ -89,7 +89,7 @@ public class RouteActivity extends AppCompatActivity implements
         ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
 
         TextView title = (TextView)findViewById(R.id.toolbar_title_route);
-        title.setText(getString(R.string.route_to) + " " + ff.getName());
+        title.setText(String.format(getString(R.string.route_to), ff.getName()));
     }
 
     public static class SimplePagerAdapter extends FragmentPagerAdapter {
