@@ -23,7 +23,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
@@ -62,7 +61,7 @@ public class RouteActivity extends AppCompatActivity implements
             Log.e(LOG_TAG, "Exception", e);
         }
 
-        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.arrow_left,
                 getApplicationContext().getTheme());
         toolbar.setNavigationIcon(upArrow);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -145,7 +144,7 @@ public class RouteActivity extends AppCompatActivity implements
                                         this.enc_polyline = enc_points;
                                         List<LatLng> m_path = PolyUtil.decode(enc_points);
                                         PolylineOptions polyOptions = new PolylineOptions().addAll(m_path);
-                                        Polyline polyline = map.addPolyline(polyOptions);
+                                        map.addPolyline(polyOptions);
 
                                         LatLngBounds.Builder builder = new LatLngBounds.Builder();
                                         for(LatLng coord : m_path){

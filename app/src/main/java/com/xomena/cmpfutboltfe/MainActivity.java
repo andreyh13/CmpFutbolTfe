@@ -16,6 +16,9 @@ import java.util.Map;
 
 import android.content.Intent;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
 public class MainActivity extends AppCompatActivity implements CountiesFragment.OnFragmentInteractionListener,
         MainMapFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
     private static final String LOG_TAG = "MainActivity";
@@ -26,6 +29,9 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     protected static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
     protected static final String EXTRA_ADDRESS = "com.xomena.cmpfutboltfe.ADDRESS";
     protected static final String EXTRA_PLACEID = "com.xomena.cmpfutboltfe.PLACEID";
+    protected static final String EXTRA_ENC_POLY = "com.xomena.cmpfutboltfe.ENC_POLY";
+    protected static final String SV_LAT = "com.xomena.cmpfutboltfe.SV_LAT";
+    protected static final String SV_LNG = "com.xomena.cmpfutboltfe.SV_LNG";
 
     protected static final String DIRECTIONS_API_BASE = "https://maps.googleapis.com/maps/api/directions";
     protected static final String ROADS_API_BASE = "https://roads.googleapis.com/v1/snapToRoads";
@@ -42,7 +48,9 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
             "AIzaSyCdNXAWPRXQRnfw23M8PJoUkm_R2jFTZWs"
     };
 
-    protected static final String API_KEY = "AIzaSyA67JIj41Ze0lbc2KidOgQMgqLOAZOcybE";
+    protected static final LatLngBounds BOUNDS_TENERIFE = new LatLngBounds(
+            new LatLng(27.9980726,-16.9259232), new LatLng(28.5893007,-16.1194386));
+
     //protected static final int QPS = 10;
 
     MainPagerAdapter mPagerAdapter;

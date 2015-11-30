@@ -49,6 +49,8 @@ public class RouteMapFragment extends Fragment implements RouteStepAdapter.OnIte
     private String origPlaceId;
     private String address;
     private String destPlaceId;
+    private FootballField ff;
+    private String enc_polyline;
 
     private OnFragmentInteractionListener mListener;
     private RouteStepAdapter adapter;
@@ -72,7 +74,7 @@ public class RouteMapFragment extends Fragment implements RouteStepAdapter.OnIte
         super.onCreate(savedInstanceState);
 
         Intent i = getActivity().getIntent();
-        FootballField ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
+        ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
 
         address = i.getStringExtra(MainActivity.EXTRA_ADDRESS);
         origPlaceId = i.getStringExtra(MainActivity.EXTRA_PLACEID);
@@ -108,17 +110,13 @@ public class RouteMapFragment extends Fragment implements RouteStepAdapter.OnIte
     public void onItemClick(View itemView, int position) {
         TextView stepTextView = (TextView) itemView.findViewById(R.id.route_step);
         if (stepTextView != null) {
-            Intent intent = new Intent(getActivity(), StreetViewActivity.class);
+            Intent intent = new Intent(getActivity(), StreetViewRouteStepActivity.class);
             LatLng location = stepLatLng.get(position);
-            intent.putExtra("SV_LAT", location.latitude);
-            intent.putExtra("SV_LNG", location.longitude);
-            if(position==stepLatLng.size()-1){
-                intent.putExtra("SV_LAT_NEXT", ff_lat);
-                intent.putExtra("SV_LNG_NEXT", ff_lng);
-            } else {
-                intent.putExtra("SV_LAT_NEXT", stepLatLng.get(position+1).latitude);
-                intent.putExtra("SV_LNG_NEXT", stepLatLng.get(position+1).longitude);
-            }
+            intent.putExtra(MainActivity.SV_LAT, location.latitude);
+            intent.putExtra(MainActivity.SV_LNG, location.longitude);
+            intent.putExtra(MainActivity.EXTRA_ITEM, ff);
+            intent.putExtra(MainActivity.EXTRA_ENC_POLY, enc_polyline);
+
             startActivity(intent);
         }
     }
@@ -169,6 +167,14 @@ public class RouteMapFragment extends Fragment implements RouteStepAdapter.OnIte
                         JSONArray rts = jsonRoute.getJSONArray("routes");
                         if(rts != null && rts.length() > 0 && !rts.isNull(0)) {
                             JSONObject r = rts.getJSONObject(0);
+
+                            if (r.has("overview_polyline") && !r.isNull("overview_polyline")) {
+                                JSONObject m_poly = r.getJSONObject("overview_polyline");
+                                if (m_poly.has("points") && !m_poly.isNull("points")) {
+                                    this.enc_polyline = m_poly.getString("points");
+                                }
+                            }
+
                             List<Spanned> listSteps = new ArrayList<>();
 
                             //Title

@@ -33,4 +33,5 @@
     <string name="poweredGoogle">Powered by Google</string>
     <string name="no_panorama">Unfortunately, the street view cannot be found for this location</string>
     <string name="route_to">Route to %1$s</string>
+    <string name="title_activity_street_view_route_step">StreetViewRouteStepActivity</string>
 </resources>

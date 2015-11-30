@@ -3,6 +3,7 @@ package com.xomena.cmpfutboltfe;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
@@ -36,7 +37,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class AnimateRouteActivity extends AppCompatActivity implements OnStreetViewPanoramaReadyCallback {
+public class AnimateRouteActivity extends AppCompatActivity
+        implements OnStreetViewPanoramaReadyCallback, GoogleMap.OnMapClickListener,
+        StreetViewPanorama.OnStreetViewPanoramaChangeListener {
 
     private static final String LOG_TAG = "AnimateRouteActivity";
 
@@ -68,7 +71,7 @@ public class AnimateRouteActivity extends AppCompatActivity implements OnStreetV
             Log.e(LOG_TAG, "Exception", e);
         }
 
-        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.arrow_left,
                 getApplicationContext().getTheme());
         toolbar.setNavigationIcon(upArrow);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -102,6 +105,8 @@ public class AnimateRouteActivity extends AppCompatActivity implements OnStreetV
                 posMarker = map.addMarker(new MarkerOptions()
                         .position(path.get(0)).anchor(0.5f, 0.5f).draggable(false)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_point)));
+
+                map.setOnMapClickListener(this);
             }
         }
 
@@ -128,6 +133,7 @@ public class AnimateRouteActivity extends AppCompatActivity implements OnStreetV
                 map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
             }
         }
+        mStreetViewPanorama.setOnStreetViewPanoramaChangeListener(this);
     }
 
     public void onMovePosition(View view){
@@ -318,6 +324,53 @@ public class AnimateRouteActivity extends AppCompatActivity implements OnStreetV
 
         return llat >= Math.min(p1lat,p2lat) && llat <= Math.max(p1lat,p2lat) &&
                 llng >= Math.min(p1lng,p2lng) && llng <= Math.max(p1lng,p2lng);
+    }
+
+    @Override
+    public void onMapClick(LatLng point) {
+        LatLng nearest = null;
+        int nearestInd = -1;
+        float mdist = 100000f;
+        int index = -1;
+        for(LatLng rpoint : interpolated) {
+            index++;
+            float d = distanceBetween(point, rpoint);
+            if (d < mdist) {
+                mdist = d;
+                nearest = rpoint;
+                nearestInd = index;
+            }
+        }
+        if (mdist <= 50f) {
+            if(timer != null){
+                timer.cancel();
+                timer = null;
+                btnAnimate.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+            }
+            posMarker.setPosition(nearest);
+            position = nearestInd;
+            mStreetViewPanorama.setPosition(nearest, 20);
+        }
+    }
+
+    private float distanceBetween(LatLng latLng1, LatLng latLng2) {
+
+        Location loc1 = new Location(LocationManager.GPS_PROVIDER);
+        Location loc2 = new Location(LocationManager.GPS_PROVIDER);
+
+        loc1.setLatitude(latLng1.latitude);
+        loc1.setLongitude(latLng1.longitude);
+
+        loc2.setLatitude(latLng2.latitude);
+        loc2.setLongitude(latLng2.longitude);
+
+
+        return loc1.distanceTo(loc2);
+    }
+
+    @Override
+    public  void onStreetViewPanoramaChange(StreetViewPanoramaLocation location) {
+        moveCameraToNextPosition(interpolated);
     }
 
 }
