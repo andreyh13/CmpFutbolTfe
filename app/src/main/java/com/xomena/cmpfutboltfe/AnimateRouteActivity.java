@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.StreetViewPanoramaFragment;
@@ -39,7 +40,7 @@ import java.util.TimerTask;
 
 public class AnimateRouteActivity extends AppCompatActivity
         implements OnStreetViewPanoramaReadyCallback, GoogleMap.OnMapClickListener,
-        StreetViewPanorama.OnStreetViewPanoramaChangeListener {
+        OnMapReadyCallback, StreetViewPanorama.OnStreetViewPanoramaChangeListener {
 
     private static final String LOG_TAG = "AnimateRouteActivity";
 
@@ -96,19 +97,7 @@ public class AnimateRouteActivity extends AppCompatActivity
 
         MapFragment mapFrag = (MapFragment)
                 getFragmentManager().findFragmentById(R.id.animate_map);
-        if(mapFrag!=null && polyline != null) {
-            map = mapFrag.getMap();
-            if (map != null) {
-                PolylineOptions polyOptions = new PolylineOptions().addAll(path);
-                map.addPolyline(polyOptions);
-
-                posMarker = map.addMarker(new MarkerOptions()
-                        .position(path.get(0)).anchor(0.5f, 0.5f).draggable(false)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_point)));
-
-                map.setOnMapClickListener(this);
-            }
-        }
+        mapFrag.getMapAsync(this);
 
         StreetViewPanoramaFragment streetViewPanoramaFragment =
                 (StreetViewPanoramaFragment) getFragmentManager()
@@ -120,8 +109,24 @@ public class AnimateRouteActivity extends AppCompatActivity
     @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
         mStreetViewPanorama = panorama;
+        panorama.setOnStreetViewPanoramaChangeListener(this);
         if(polyline!=null && path!=null && path.size()>0){
             panorama.setPosition(path.get(0), 20);
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        if(polyline != null) {
+            PolylineOptions polyOptions = new PolylineOptions().addAll(path);
+            map.addPolyline(polyOptions);
+
+            posMarker = map.addMarker(new MarkerOptions()
+                    .position(path.get(0)).anchor(0.5f, 0.5f).draggable(false)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_point)));
+
+            map.setOnMapClickListener(this);
 
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for(LatLng coord : path){
@@ -129,11 +134,8 @@ public class AnimateRouteActivity extends AppCompatActivity
             }
             LatLngBounds m_bounds = builder.build();
 
-            if (map != null) {
-                map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
-            }
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
         }
-        mStreetViewPanorama.setOnStreetViewPanoramaChangeListener(this);
     }
 
     public void onMovePosition(View view){

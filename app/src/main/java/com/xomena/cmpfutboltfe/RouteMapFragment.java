@@ -116,6 +116,7 @@ public class RouteMapFragment extends Fragment implements RouteStepAdapter.OnIte
             intent.putExtra(MainActivity.SV_LNG, location.longitude);
             intent.putExtra(MainActivity.EXTRA_ITEM, ff);
             intent.putExtra(MainActivity.EXTRA_ENC_POLY, enc_polyline);
+            intent.putExtra("ROUTE_STEP_DESCR", stepTextView.getText().toString());
 
             startActivity(intent);
         }

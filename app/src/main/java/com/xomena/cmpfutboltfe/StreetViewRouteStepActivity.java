@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -80,6 +81,9 @@ public class StreetViewRouteStepActivity extends AppCompatActivity
             path = PolyUtil.decode(polyline);
         }
         ff = i.getParcelableExtra(MainActivity.EXTRA_ITEM);
+        String descr = i.getStringExtra("ROUTE_STEP_DESCR");
+        TextView textDescr = (TextView) findViewById(R.id.sv_step_descr);
+        textDescr.setText(descr);
 
         MapFragment mapFrag = (MapFragment)
                 getFragmentManager().findFragmentById(R.id.sv_step_map);
@@ -94,8 +98,8 @@ public class StreetViewRouteStepActivity extends AppCompatActivity
     @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
         mStreetViewPanorama = panorama;
-        panorama.setPosition(posLatLng, 20);
         panorama.setOnStreetViewPanoramaChangeListener(this);
+        panorama.setPosition(posLatLng, 5);
     }
 
     @Override

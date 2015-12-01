@@ -29,6 +29,16 @@
                 />
         </android.support.v7.widget.Toolbar>
 
+        <TextView
+            android:id="@+id/sv_step_descr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:text=""
+            />
+
         <fragment
             android:name="com.google.android.gms.maps.StreetViewPanoramaFragment"
             android:id="@+id/sv_step_panorama"
