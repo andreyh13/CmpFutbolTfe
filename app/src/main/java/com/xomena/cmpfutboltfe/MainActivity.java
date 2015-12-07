@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     }
 
     public void onSelectMarker(){
-
+        //Do nothing
     }
 
     public void onSearchFootballField(){

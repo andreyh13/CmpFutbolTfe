@@ -1,8 +1,10 @@
 package com.xomena.cmpfutboltfe;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +13,9 @@ import android.view.ViewGroup;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -19,6 +23,8 @@ import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,11 +40,14 @@ import java.util.Map;
 public class MainMapFragment extends Fragment
         implements ClusterManager.OnClusterItemClickListener<MarkerItem>,
                 ClusterManager.OnClusterItemInfoWindowClickListener<MarkerItem>,
-                ClusterManager.OnClusterClickListener<MarkerItem> {
+                ClusterManager.OnClusterClickListener<MarkerItem>, OnMapReadyCallback {
+    private final String SAVED_CAMERA_STATE = "state_map_camera";
+
     private OnFragmentInteractionListener mListener;
     private Map<String,List<FootballField>> ff_data;
     private GoogleMap map;
     private ClusterManager<MarkerItem> mClusterManager;
+    private CameraPosition camera;
 
     /**
      * Use this factory method to create a new instance of
@@ -57,13 +66,57 @@ public class MainMapFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_main_map, container, false);
+        View v =  inflater.inflate(R.layout.fragment_main_map, container, false);
+
+        if(savedInstanceState!=null && savedInstanceState.containsKey(MainActivity.SAVED_KEYS)){
+            String[] keys = savedInstanceState.getStringArray(MainActivity.SAVED_KEYS);
+            ff_data = new LinkedHashMap<>();
+            if (keys != null && keys.length > 0) {
+                for (String key : keys) {
+                    ArrayList<Parcelable> al = savedInstanceState.getParcelableArrayList(key);
+                    ArrayList<FootballField> af = new ArrayList<>();
+                    if (al != null) {
+                        for (Parcelable p : al) {
+                            af.add((FootballField) p);
+                        }
+                    }
+                    ff_data.put(key, af);
+                }
+            }
+        }
+        if (savedInstanceState != null && savedInstanceState.containsKey(SAVED_CAMERA_STATE)) {
+            camera = savedInstanceState.getParcelable(SAVED_CAMERA_STATE);
+        }
+
+        MapFragment mapFrag = (MapFragment)
+                getActivity().getFragmentManager().findFragmentById(R.id.main_map);
+        mapFrag.getMapAsync(this);
+
+        return v;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        if(ff_data != null){
+            savedInstanceState.putStringArray(MainActivity.SAVED_KEYS, ff_data.keySet().toArray(new String[ff_data.keySet().size()]));
+            for(String key : ff_data.keySet()){
+                ArrayList<FootballField> af = new ArrayList<>(ff_data.get(key));
+                savedInstanceState.putParcelableArrayList(key, af);
+            }
+        }
+
+        if (map != null) {
+            savedInstanceState.putParcelable(SAVED_CAMERA_STATE, map.getCameraPosition());
+        }
     }
 
     public void onMarkerSelected() {
@@ -73,12 +126,18 @@ public class MainMapFragment extends Fragment
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Activity a;
+        if (context instanceof Activity){
+            a= (Activity) context;
+        } else {
+            a = getActivity();
+        }
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) a;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(a.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -100,7 +159,7 @@ public class MainMapFragment extends Fragment
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        public void onSelectMarker();
+        void onSelectMarker();
     }
 
     public void initializeMainMap(Map<String,List<FootballField>> ff_data){
@@ -110,7 +169,7 @@ public class MainMapFragment extends Fragment
         if(mapFrag!=null && ff_data!=null) {
             map = mapFrag.getMap();
             if (map != null) {
-                mClusterManager = new ClusterManager<MarkerItem>(this.getActivity(), map);
+                mClusterManager = new ClusterManager<>(this.getActivity(), map);
                 mClusterManager.setRenderer(new MarkerItemRenderer());
                 map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 map.setOnCameraChangeListener(mClusterManager);
@@ -144,6 +203,17 @@ public class MainMapFragment extends Fragment
         }
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        if (ff_data != null) {
+            initializeMainMap(ff_data);
+
+            if (camera != null) {
+                googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camera));
+            }
+        }
+    }
+
     private class MarkerItemRenderer extends DefaultClusterRenderer<MarkerItem> {
         public MarkerItemRenderer() {
             super(getActivity().getApplicationContext(), map, mClusterManager);
@@ -159,6 +229,7 @@ public class MainMapFragment extends Fragment
 
     @Override
     public boolean onClusterItemClick(MarkerItem item) {
+        onMarkerSelected();
         return false;
     }
 

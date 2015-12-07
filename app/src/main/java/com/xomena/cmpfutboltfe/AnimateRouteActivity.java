@@ -52,8 +52,10 @@ public class AnimateRouteActivity extends AppCompatActivity
     private int position = 0;
     private Timer timer;
     private FloatingActionButton btnAnimate;
-    private GoogleMap map;
     private Marker posMarker;
+
+    private boolean hasRuntimeData;
+    private boolean wasAnimated;
 
 
     @Override
@@ -95,6 +97,12 @@ public class AnimateRouteActivity extends AppCompatActivity
         TextView title = (TextView)findViewById(R.id.toolbar_title_animate);
         title.setText(String.format(getString(R.string.route_to),ff.getName()));
 
+        if (savedInstanceState != null && savedInstanceState.containsKey("hasRuntimeData")) {
+            hasRuntimeData = savedInstanceState.getBoolean("hasRuntimeData");
+            position = savedInstanceState.getInt("currentPos");
+            wasAnimated = savedInstanceState.getBoolean("wasAnimated");
+        }
+
         MapFragment mapFrag = (MapFragment)
                 getFragmentManager().findFragmentById(R.id.animate_map);
         mapFrag.getMapAsync(this);
@@ -107,26 +115,39 @@ public class AnimateRouteActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onSaveInstanceState (Bundle outState) {
+       outState.putBoolean("hasRuntimeData", true);
+       outState.putInt("currentPos", position);
+       outState.putBoolean("wasAnimated", timer != null);
+    }
+
+    @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama panorama) {
         mStreetViewPanorama = panorama;
         panorama.setOnStreetViewPanoramaChangeListener(this);
-        if(polyline!=null && path!=null && path.size()>0){
-            panorama.setPosition(path.get(0), 20);
+        if(polyline!=null && interpolated!=null && interpolated.size()>0){
+            panorama.setPosition(interpolated.get(position), 20);
         }
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
         if(polyline != null) {
             PolylineOptions polyOptions = new PolylineOptions().addAll(path);
-            map.addPolyline(polyOptions);
+            googleMap.addPolyline(polyOptions);
 
-            posMarker = map.addMarker(new MarkerOptions()
-                    .position(path.get(0)).anchor(0.5f, 0.5f).draggable(false)
+            LatLng startPos;
+            if (hasRuntimeData) {
+                startPos = interpolated.get(position);
+            } else {
+                startPos = path.get(0);
+            }
+
+            posMarker = googleMap.addMarker(new MarkerOptions()
+                    .position(startPos).anchor(0.5f, 0.5f).draggable(false)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_point)));
 
-            map.setOnMapClickListener(this);
+            googleMap.setOnMapClickListener(this);
 
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for(LatLng coord : path){
@@ -134,7 +155,11 @@ public class AnimateRouteActivity extends AppCompatActivity
             }
             LatLngBounds m_bounds = builder.build();
 
-            map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
+
+            if (wasAnimated) {
+                onMovePosition(findViewById(R.id.move_position));
+            }
         }
     }
 
@@ -180,7 +205,7 @@ public class AnimateRouteActivity extends AppCompatActivity
     }
 
     private void moveCameraToNextPosition(List<LatLng> path){
-        if(path!=null){
+        if(path!=null && mStreetViewPanorama != null){
             //Find the Bearing from current location to next location
             float targetBearing = getTargetBearing(path);
 
