@@ -20,7 +20,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_stadion"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:largeHeap="false">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">
@@ -32,10 +33,10 @@
         </activity>
         <activity
             android:name=".FieldsListActivity"
-            android:label="@string/title_activity_fields_list"></activity>
+            android:label="@string/title_activity_fields_list" />
         <activity
             android:name=".FieldDetailActivity"
-            android:label="@string/title_activity_field_detail"></activity>
+            android:label="@string/title_activity_field_detail" />
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -46,7 +47,7 @@
 
         <activity
             android:name=".RouteActivity"
-            android:label="@string/title_activity_route"></activity>
+            android:label="@string/title_activity_route" />
         <activity
             android:name=".SearchableActivity"
             android:label="@string/title_activity_searchable">
@@ -60,13 +61,17 @@
         </activity>
         <activity
             android:name=".StreetViewActivity"
-            android:label="@string/title_activity_street_view"></activity>
+            android:label="@string/title_activity_street_view" />
         <activity
             android:name=".AnimateRouteActivity"
-            android:label="@string/title_activity_animate_route"></activity>
+            android:label="@string/title_activity_animate_route" />
         <activity
             android:name=".StreetViewRouteStepActivity"
             android:label="@string/title_activity_street_view_route_step"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ManagePlacesActivity"
+            android:label="@string/title_activity_manage_places"
             android:theme="@style/AppTheme"></activity>
     </application>
 

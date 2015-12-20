@@ -34,4 +34,14 @@
     <string name="no_panorama">Unfortunately, the street view cannot be found for this location</string>
     <string name="route_to">Route to %1$s</string>
     <string name="title_activity_street_view_route_step">StreetViewRouteStepActivity</string>
+    <string name="title_activity_manage_places">My Places</string>
+    <string name="action_places">My Places</string>
+    <string name="play_service_missing">Google Play Services is missing</string>
+    <string name="play_service_updating">Google Play Services is updating. Try later.</string>
+    <string name="play_service_update_required">Google Play Services requires update</string>
+    <string name="play_service_disabled">Google Play Services is disabled</string>
+    <string name="play_service_invalid">Google Play Services is invalid</string>
+    <string name="place_alredy_in_list">Place: %1$s is already in the list of stored places</string>
+    <string name="place_added_to_list">Place: %1$s has been added to the list of stored places</string>
+    <string name="place_id_value">Place ID: %1$s</string>
 </resources>

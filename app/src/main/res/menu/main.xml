@@ -10,8 +10,8 @@
         app:showAsAction="always"
         android:title="@string/search" /-->
 
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+    <item android:id="@+id/action_places"
+        android:title="@string/action_places"
         android:orderInCategory="100"
         app:showAsAction="never" />
 

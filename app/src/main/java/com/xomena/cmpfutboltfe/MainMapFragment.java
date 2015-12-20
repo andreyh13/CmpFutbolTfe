@@ -6,13 +6,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -41,6 +47,7 @@ public class MainMapFragment extends Fragment
         implements ClusterManager.OnClusterItemClickListener<MarkerItem>,
                 ClusterManager.OnClusterItemInfoWindowClickListener<MarkerItem>,
                 ClusterManager.OnClusterClickListener<MarkerItem>, OnMapReadyCallback {
+    private static final String LOG_TAG = "MainMapFragment";
     private final String SAVED_CAMERA_STATE = "state_map_camera";
 
     private OnFragmentInteractionListener mListener;
@@ -66,7 +73,32 @@ public class MainMapFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        final FragmentManager fragManager = this.getFragmentManager();
+        final Fragment fragment = fragManager.findFragmentById(R.id.main_map);
+        if(fragment!=null){
+            fragManager.beginTransaction().remove(fragment).commit();
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
     }
 
     @Override
@@ -74,6 +106,12 @@ public class MainMapFragment extends Fragment
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v =  inflater.inflate(R.layout.fragment_main_map, container, false);
+
+        try {
+            MapsInitializer.initialize(getActivity());
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Could not initialize google play", e);
+        }
 
         if(savedInstanceState!=null && savedInstanceState.containsKey(MainActivity.SAVED_KEYS)){
             String[] keys = savedInstanceState.getStringArray(MainActivity.SAVED_KEYS);
@@ -95,9 +133,30 @@ public class MainMapFragment extends Fragment
             camera = savedInstanceState.getParcelable(SAVED_CAMERA_STATE);
         }
 
-        MapFragment mapFrag = (MapFragment)
-                getActivity().getFragmentManager().findFragmentById(R.id.main_map);
-        mapFrag.getMapAsync(this);
+        switch (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getContext())) {
+            case ConnectionResult.SUCCESS:
+                MapFragment mapFrag = (MapFragment)
+                        getActivity().getFragmentManager().findFragmentById(R.id.main_map);
+                mapFrag.getMapAsync(this);
+                break;
+            case ConnectionResult.SERVICE_MISSING:
+                Toast.makeText(getActivity(), getText(R.string.play_service_missing), Toast.LENGTH_SHORT).show();
+                break;
+            case ConnectionResult.SERVICE_UPDATING:
+                Toast.makeText(getActivity(), getText(R.string.play_service_updating), Toast.LENGTH_SHORT).show();
+                break;
+            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+                Toast.makeText(getActivity(), getText(R.string.play_service_update_required), Toast.LENGTH_SHORT).show();
+                break;
+            case ConnectionResult.SERVICE_DISABLED:
+                Toast.makeText(getActivity(), getText(R.string.play_service_disabled), Toast.LENGTH_SHORT).show();
+                break;
+            case ConnectionResult.SERVICE_INVALID:
+                Toast.makeText(getActivity(), getText(R.string.play_service_invalid), Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                break;
+        }
 
         return v;
     }
@@ -117,6 +176,7 @@ public class MainMapFragment extends Fragment
         if (map != null) {
             savedInstanceState.putParcelable(SAVED_CAMERA_STATE, map.getCameraPosition());
         }
+
     }
 
     public void onMarkerSelected() {
@@ -162,51 +222,52 @@ public class MainMapFragment extends Fragment
         void onSelectMarker();
     }
 
-    public void initializeMainMap(Map<String,List<FootballField>> ff_data){
+    public void setFootbalFields (Map<String,List<FootballField>> ff_data) {
         this.ff_data = ff_data;
-        MapFragment mapFrag = (MapFragment)
-                getActivity().getFragmentManager().findFragmentById(R.id.main_map);
-        if(mapFrag!=null && ff_data!=null) {
-            map = mapFrag.getMap();
-            if (map != null) {
-                mClusterManager = new ClusterManager<>(this.getActivity(), map);
-                mClusterManager.setRenderer(new MarkerItemRenderer());
-                map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                map.setOnCameraChangeListener(mClusterManager);
-                map.setOnMarkerClickListener(mClusterManager);
-                map.setOnInfoWindowClickListener(mClusterManager);
-                mClusterManager.setOnClusterItemClickListener(this);
-                mClusterManager.setOnClusterItemInfoWindowClickListener(this);
-                mClusterManager.setOnClusterClickListener(this);
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                for(String county : ff_data.keySet()){
-                    List<FootballField> ff_list = ff_data.get(county);
-                    if(ff_list!=null && ff_list.size()>0){
-                        for(FootballField ff: ff_list){
-                            LatLng coord = new LatLng(ff.getLat(),ff.getLng());
-                            builder.include(coord);
-                            /*map.addMarker(new MarkerOptions().position(coord)
-                                    .title(ff.getName()).snippet(getString(R.string.phoneLabel)+" "+ff.getPhone())
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));*/
-                            MarkerItem markerItem = new MarkerItem(ff.getLat(),ff.getLng());
-                            markerItem.setName(ff.getName());
-                            markerItem.setSnippet(getString(R.string.phoneLabel)+" "+ff.getPhone());
-                            markerItem.setFootballField(ff);
-                            mClusterManager.addItem(markerItem);
-                        }
+        if (map != null && ff_data != null) {
+            initializeMainMap(map, ff_data);
+        }
+    }
+
+    private void initializeMainMap(GoogleMap googleMap, Map<String,List<FootballField>> ff_data){
+        if(ff_data!=null && googleMap != null) {
+            googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            googleMap.setOnCameraChangeListener(mClusterManager);
+            googleMap.setOnMarkerClickListener(mClusterManager);
+            googleMap.setOnInfoWindowClickListener(mClusterManager);
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for(String county : ff_data.keySet()){
+                List<FootballField> ff_list = ff_data.get(county);
+                if(ff_list!=null && ff_list.size()>0){
+                    for(FootballField ff: ff_list){
+                        LatLng coord = new LatLng(ff.getLat(),ff.getLng());
+                        builder.include(coord);
+                        MarkerItem markerItem = new MarkerItem(ff.getLat(),ff.getLng());
+                        markerItem.setName(ff.getName());
+                        markerItem.setSnippet(getString(R.string.phoneLabel)+" "+ff.getPhone());
+                        markerItem.setFootballField(ff);
+                        mClusterManager.addItem(markerItem);
                     }
                 }
-                LatLngBounds m_bounds = builder.build();
-                map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 8));
-
             }
+            LatLngBounds m_bounds = builder.build();
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 8));
+
         }
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        this.map = googleMap;
+
+        mClusterManager = new ClusterManager<>(this.getActivity(), googleMap);
+        mClusterManager.setRenderer(new MarkerItemRenderer());
+        mClusterManager.setOnClusterItemClickListener(this);
+        mClusterManager.setOnClusterItemInfoWindowClickListener(this);
+        mClusterManager.setOnClusterClickListener(this);
+
         if (ff_data != null) {
-            initializeMainMap(ff_data);
+            initializeMainMap(googleMap, ff_data);
 
             if (camera != null) {
                 googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camera));

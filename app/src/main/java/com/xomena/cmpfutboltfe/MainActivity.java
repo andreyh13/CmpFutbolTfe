@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     protected static final LatLngBounds BOUNDS_TENERIFE = new LatLngBounds(
             new LatLng(27.9980726,-16.9259232), new LatLng(28.5893007,-16.1194386));
 
+    protected static final String PLACES_SHARED_PREF = "com.xomena.cmpfutboltfe.PREFERENCE_PLACES_KEY";
+
     //protected static final int QPS = 10;
 
     MainPagerAdapter mPagerAdapter;
@@ -117,7 +119,13 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        return id == R.id.action_settings || super.onOptionsItemSelected(item);
+
+        if (id == R.id.action_places) {
+            Intent intent = new Intent(getApplicationContext(), ManagePlacesActivity.class);
+            startActivity(intent);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void onStartAsyncTask() {
@@ -130,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
         for(Fragment frag: fragments){
             if(frag instanceof MainMapFragment){
                 MainMapFragment mapFrag = (MainMapFragment)frag;
-                mapFrag.initializeMainMap(ff_data);
+                mapFrag.setFootbalFields(ff_data);
                 break;
             }
         }
