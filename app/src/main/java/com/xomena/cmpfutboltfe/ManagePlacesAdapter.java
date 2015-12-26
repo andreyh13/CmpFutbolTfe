@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class ManagePlacesAdapter extends
         // for any view that will be set as you render a row
         public TextView nameTextView;
         public TextView addressTextView;
+        public ImageButton removeButton;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -31,13 +33,15 @@ public class ManagePlacesAdapter extends
 
             nameTextView = (TextView) itemView.findViewById(R.id.myplace_name);
             addressTextView = (TextView) itemView.findViewById(R.id.myplace_address);
+            removeButton = (ImageButton) itemView.findViewById(R.id.myplace_delete);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            removeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     // Triggers click upwards to the adapter on click
                     if (mListener != null)
-                        mListener.onItemClick(v, getLayoutPosition());
+                        mListener.onRemovePlace(v, getLayoutPosition());
                 }
             });
         }
@@ -49,7 +53,7 @@ public class ManagePlacesAdapter extends
 
     // Define the listener interface
     public interface OnItemClickListener {
-        void onItemClick(View itemView, int position);
+        void onRemovePlace(View itemView, int position);
     }
 
     // Define the method that allows the parent activity or fragment to define the listener
@@ -97,5 +101,19 @@ public class ManagePlacesAdapter extends
     public void addItem(MyPlace mPlace, int position) {
         mPlaces.add(position, mPlace);
         notifyItemInserted(position);
+    }
+
+    public MyPlace getItem(int position) {
+        if (position >= 0 && position < mPlaces.size()) {
+            return mPlaces.get(position);
+        }
+        return null;
+    }
+
+    public void removeItem(int position) {
+        if (position >= 0 && position < mPlaces.size()) {
+            mPlaces.remove(position);
+            notifyItemRemoved(position);
+        }
     }
 }

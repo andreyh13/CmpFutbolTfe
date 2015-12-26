@@ -43,4 +43,8 @@
     <string name="place_alredy_in_list">Lugar: %1$s ya está en la lista de mis lugares</string>
     <string name="place_added_to_list">Lugar: %1$s ha sido añadido a la lista de mis lugares</string>
     <string name="place_id_value">ID de Lugar: %1$s</string>
+    <string name="remove_place">Eliminar lugar</string>
+    <string name="are_you_sure">¿Estás seguro eliminando %1$s?</string>
+    <string name="ok">Si</string>
+    <string name="cancel">Cancelar</string>
 </resources>

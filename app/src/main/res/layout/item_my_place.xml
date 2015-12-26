@@ -1,25 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+
+<android.support.percent.PercentRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp"
-    android:background="?android:attr/selectableItemBackground">
+    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp">
 
     <TextView
         android:id="@+id/myplace_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/abc_action_bar_content_inset_material"
-        android:textSize="@dimen/abc_text_size_menu_material"
-        android:textStyle="bold"/>
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_alignParentTop="true"
+        app:layout_widthPercent="90%"/>
 
     <TextView
         android:id="@+id/myplace_address"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/abc_action_bar_content_inset_material"
-        android:textSize="@dimen/abc_text_size_menu_material" />
+        android:textSize="16sp"
+        android:layout_below="@id/myplace_name"
+        app:layout_widthPercent="90%"
+        android:layout_marginBottom="4dp"/>
 
-</LinearLayout>
+    <ImageButton
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/myplace_delete"
+        android:src="@drawable/minus_circle_outline"
+        android:layout_alignParentTop="true"
+        app:layout_widthPercent="10%"
+        android:layout_toRightOf="@id/myplace_name"
+        android:layout_toEndOf="@id/myplace_name"
+        android:contentDescription="@string/remove_place"
+        android:background="@color/colorWhite"
+        android:layout_alignTop="@id/myplace_name"
+        android:layout_alignBottom="@id/myplace_address"/>
+
+</android.support.percent.PercentRelativeLayout>
