@@ -47,4 +47,10 @@
     <string name="are_you_sure">¿Estás seguro eliminando %1$s?</string>
     <string name="ok">Si</string>
     <string name="cancel">Cancelar</string>
+    <string name="title_activity_select_place">Seleccione el lugar</string>
+    <string name="select_stored_place">O selecciona uno de tus lugares</string>
+    <string name="save_this_place">¿Quieres guardar el lugar %1$s?</string>
+    <string name="author_name">Autor: Xomena (www.xomena.com)</string>
+    <string name="issue_tracker">Por favor reporta problemas o feature requests en https://github.com/andreyh13/CmpFutbolTfe/issues</string>
+    <string name="about">Acerca de</string>
 </resources>

@@ -28,34 +28,6 @@
                 />
         </android.support.v7.widget.Toolbar>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:id="@+id/fieldDetailHowToGet"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="8dp"
-            android:text="@string/howToGet"/>
-
-        <AutoCompleteTextView
-            android:id="@+id/fieldDetailEnterPlace"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/enterPlace"
-            android:ems="10"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginRight="6dp"
-            android:layout_marginBottom="4dp"
-            android:src="@drawable/powered_by_google_light"
-            android:contentDescription="@string/poweredGoogle"/>
-
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/ff_map"
             android:name="com.google.android.gms.maps.MapFragment"
@@ -66,12 +38,27 @@
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/show_pitch_directions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="84dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_directions"
+        android:clickable="true"
+        android:onClick="onShowPitchDirections"
+        app:layout_anchor="@id/ff_map"
+        app:layout_anchorGravity="bottom|right|end" />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/show_pitch_street_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="24dp"
         android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:src="@drawable/streetview"
         android:clickable="true"
         android:onClick="onShowPitchStreetView"

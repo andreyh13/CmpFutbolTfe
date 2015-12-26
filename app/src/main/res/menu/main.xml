@@ -15,11 +15,16 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_about"
+        android:title="@string/about"
+        android:orderInCategory="101"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/miActionProgress"
         android:title="Loading..."
         android:visible="false"
-        android:orderInCategory="100"
+        android:orderInCategory="102"
         app:showAsAction="ifRoom"
         app:actionLayout="@layout/action_view_progress" />
 

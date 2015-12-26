@@ -9,21 +9,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.places.AutocompletePrediction;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -31,51 +25,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FieldDetailActivity extends AppCompatActivity
-        implements GoogleApiClient.OnConnectionFailedListener, WebServiceExec.OnWebServiceResult {
+        implements WebServiceExec.OnWebServiceResult, OnMapReadyCallback {
 
     private static final String LOG_TAG = "FieldDetailActivity";
+    private static final int REQUEST_PLACE = 1;
 
-    private GoogleMap mMap;
     private FootballField ff;
-
-    protected GoogleApiClient mGoogleApiClient;
-    private PlacesAutocompleteAdapter mAdapter;
-
-    private static final LatLngBounds BOUNDS_TENERIFE = new LatLngBounds(
-            new LatLng(27.9980726,-16.9259232), new LatLng(28.5893007,-16.1194386));
-
-    private AdapterView.OnItemClickListener mAutocompleteClickListener
-            = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            /*
-             Retrieve the place ID of the selected item from the Adapter.
-             The adapter stores each Place suggestion in a AutocompletePrediction from which we
-             read the place ID and title.
-              */
-            final AutocompletePrediction item = mAdapter.getItem(position);
-            final String placeId = item.getPlaceId();
-            final CharSequence primaryText = item.getPrimaryText(null);
-
-            Toast.makeText(getApplicationContext(), primaryText, Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getApplicationContext(), RouteActivity.class);
-            intent.putExtra(MainActivity.EXTRA_ITEM, ff);
-            intent.putExtra(MainActivity.EXTRA_ADDRESS, primaryText.toString());
-            intent.putExtra(MainActivity.EXTRA_PLACEID, placeId);
-
-            startActivity(intent);
-
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, 0 /* clientId */, this)
-                .addApi(Places.GEO_DATA_API)
-                .build();
 
         setContentView(R.layout.activity_field_detail);
 
@@ -90,7 +49,7 @@ public class FieldDetailActivity extends AppCompatActivity
             Log.e(LOG_TAG, "Exception", e);
         }
 
-        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.arrow_left,
                 getApplicationContext().getTheme());
         toolbar.setNavigationIcon(upArrow);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -106,29 +65,20 @@ public class FieldDetailActivity extends AppCompatActivity
         TextView title = (TextView)findViewById(R.id.toolbar_title_details);
         title.setText(ff.getName());
 
-        setUpMapIfNeeded(ff);
-
-        AutoCompleteTextView mAutocompleteView = (AutoCompleteTextView) findViewById(R.id.fieldDetailEnterPlace);
-        mAutocompleteView.setOnItemClickListener(mAutocompleteClickListener);
-        mAdapter = new PlacesAutocompleteAdapter(this, mGoogleApiClient, BOUNDS_TENERIFE, null);
-        mAutocompleteView.setAdapter(mAdapter);
+        MapFragment mapFrag = (MapFragment) getFragmentManager().findFragmentById(R.id.ff_map);
+        mapFrag.getMapAsync(this);
     }
 
-    private void setUpMapIfNeeded(FootballField ff) {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.ff_map)).getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                // The Map is verified. It is now safe to manipulate the map.
-                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(ff.getLat(),ff.getLng())));
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        if (ff != null) {
+            googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(ff.getLat(), ff.getLng())));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(17));
 
-                mMap.addMarker(new MarkerOptions().position(new LatLng(ff.getLat(),ff.getLng()))
-                .title(ff.getName()).snippet(getString(R.string.phoneLabel)+" "+ff.getPhone())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));
-            }
+            googleMap.addMarker(new MarkerOptions().position(new LatLng(ff.getLat(), ff.getLng()))
+                    .title(ff.getName()).snippet(getString(R.string.phoneLabel) + " " + ff.getPhone())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));
         }
     }
 
@@ -209,15 +159,29 @@ public class FieldDetailActivity extends AppCompatActivity
         //Empty method
     }
 
+    public void onShowPitchDirections(View view) {
+        Intent intent = new Intent(this, SelectPlaceActivity.class);
+        startActivityForResult(intent, REQUEST_PLACE);
+    }
+
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        Log.e(LOG_TAG, "onConnectionFailed: ConnectionResult.getErrorCode() = "
-                + connectionResult.getErrorCode());
+        if (requestCode == REQUEST_PLACE) {
+            if(resultCode == RESULT_OK) {
+                String placeId = data.getStringExtra(MainActivity.EXTRA_PLACEID);
+                String address = data.getStringExtra(MainActivity.EXTRA_ADDRESS);
 
-        Toast.makeText(this,
-                "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(),
-                Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), address, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), RouteActivity.class);
+                intent.putExtra(MainActivity.EXTRA_ITEM, ff);
+                intent.putExtra(MainActivity.EXTRA_ADDRESS, address);
+                intent.putExtra(MainActivity.EXTRA_PLACEID, placeId);
+
+                startActivity(intent);
+            }
+        }
     }
 
     private void startSV (double lat, double lng, String placeId) {

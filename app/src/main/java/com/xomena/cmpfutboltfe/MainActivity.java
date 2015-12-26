@@ -1,6 +1,7 @@
 package com.xomena.cmpfutboltfe;
 
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.app.AppCompatActivity;
@@ -120,9 +121,16 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_places) {
-            Intent intent = new Intent(getApplicationContext(), ManagePlacesActivity.class);
-            startActivity(intent);
+        switch (id) {
+            case R.id.action_places:
+                Intent intent = new Intent(getApplicationContext(), ManagePlacesActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_about:
+                FragmentManager fm = getSupportFragmentManager();
+                AboutDialog d = AboutDialog.newInstance(getString(R.string.about));
+                d.show(fm, "layout_about_dialog");
+                break;
         }
 
         return super.onOptionsItemSelected(item);
