@@ -33,6 +33,7 @@
     <string name="poweredGoogle">Powered by Google</string>
     <string name="no_panorama">Por desgracia, la vista de la calle no puede ser encontrada para esta ubicación</string>
     <string name="route_to">La ruta al %1$s</string>
+    <string name="title_activity_street_view_route_step">StreetViewRouteStepActivity</string>
     <string name="title_activity_manage_places">Mis Lugares</string>
     <string name="action_places">Mis Lugares</string>
     <string name="play_service_missing">Google Play Services no está instalado</string>
@@ -52,5 +53,6 @@
     <string name="save_this_place">¿Quieres guardar el lugar %1$s?</string>
     <string name="author_name">Autor: Xomena (www.xomena.com)</string>
     <string name="issue_tracker">Por favor reporta problemas o feature requests en https://github.com/andreyh13/CmpFutbolTfe/issues</string>
+    <string name="app_copyright">©Xomena 2015-2016</string>
     <string name="about">Acerca de</string>
 </resources>
