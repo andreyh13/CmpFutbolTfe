@@ -19,7 +19,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_stadion"
+        android:icon="@mipmap/ic_stadion"
         android:label="@string/app_name"
         android:largeHeap="false"
         android:theme="@style/AppTheme">
