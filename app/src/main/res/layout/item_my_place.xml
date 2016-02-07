@@ -24,7 +24,9 @@
         android:textSize="16sp"
         android:layout_below="@id/myplace_name"
         app:layout_widthPercent="90%"
-        android:layout_marginBottom="4dp"/>
+        android:layout_marginBottom="4dp"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:gravity="center_vertical"/>
 
     <ImageButton
         android:layout_width="0dp"

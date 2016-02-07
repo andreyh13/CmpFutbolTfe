@@ -24,6 +24,8 @@
         android:textSize="16sp"
         android:layout_below="@id/select_place_name"
         app:layout_widthPercent="100%"
-        android:layout_marginBottom="4dp"/>
+        android:layout_marginBottom="4dp"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:gravity="center_vertical"/>
 
 </android.support.percent.PercentRelativeLayout>
