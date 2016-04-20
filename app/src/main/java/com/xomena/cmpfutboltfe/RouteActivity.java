@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -129,73 +130,78 @@ public class RouteActivity extends AppCompatActivity implements
         MapFragment mapFrag = (MapFragment)
                 getFragmentManager().findFragmentById(R.id.route_map);
         if(mapFrag!=null && jsonRoute != null){
-            GoogleMap map = mapFrag.getMap();
-            if(map!=null) {
-                try {
-                    if (jsonRoute.has("status") && jsonRoute.getString("status").equals("OK")) {
-                        if (jsonRoute.has("routes")) {
-                            JSONArray rts = jsonRoute.getJSONArray("routes");
-                            if (rts != null && rts.length() > 0 && !rts.isNull(0)) {
-                                JSONObject r = rts.getJSONObject(0);
-                                if (r.has("overview_polyline") && !r.isNull("overview_polyline")) {
-                                    JSONObject m_poly = r.getJSONObject("overview_polyline");
-                                    if (m_poly.has("points") && !m_poly.isNull("points")) {
-                                        String enc_points = m_poly.getString("points");
-                                        this.enc_polyline = enc_points;
-                                        List<LatLng> m_path = PolyUtil.decode(enc_points);
-                                        PolylineOptions polyOptions = new PolylineOptions().addAll(m_path);
-                                        map.addPolyline(polyOptions);
+            final RouteActivity self = this;
+            mapFrag.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    if(googleMap!=null) {
+                        try {
+                            if (jsonRoute.has("status") && jsonRoute.getString("status").equals("OK")) {
+                                if (jsonRoute.has("routes")) {
+                                    JSONArray rts = jsonRoute.getJSONArray("routes");
+                                    if (rts != null && rts.length() > 0 && !rts.isNull(0)) {
+                                        JSONObject r = rts.getJSONObject(0);
+                                        if (r.has("overview_polyline") && !r.isNull("overview_polyline")) {
+                                            JSONObject m_poly = r.getJSONObject("overview_polyline");
+                                            if (m_poly.has("points") && !m_poly.isNull("points")) {
+                                                String enc_points = m_poly.getString("points");
+                                                self.enc_polyline = enc_points;
+                                                List<LatLng> m_path = PolyUtil.decode(enc_points);
+                                                PolylineOptions polyOptions = new PolylineOptions().addAll(m_path);
+                                                googleMap.addPolyline(polyOptions);
 
-                                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                        for(LatLng coord : m_path){
-                                            builder.include(coord);
-                                        }
-                                        LatLngBounds m_bounds = builder.build();
-                                        map.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
-                                    }
-                                }
-
-                                //Legs
-                                if(r.has("legs") && !r.isNull("legs")) {
-                                    JSONArray al = r.getJSONArray("legs");
-                                    for (int i = 0; i < al.length(); i++) {
-                                        if (!al.isNull(i)) {
-                                            JSONObject l = al.getJSONObject(i);
-
-                                            //Start address
-                                            if(i==0 && l.has("start_address") && !l.isNull("start_address")){
-                                                if (l.has("start_location") && !l.isNull("start_location")) {
-                                                    map.addMarker(new MarkerOptions()
-                                                            .position(new LatLng(l.getJSONObject("start_location").getDouble("lat"), l.getJSONObject("start_location").getDouble("lng")))
-                                                            .title(l.getString("start_address"))
-                                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                                for(LatLng coord : m_path){
+                                                    builder.include(coord);
                                                 }
+                                                LatLngBounds m_bounds = builder.build();
+                                                googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(m_bounds, 10));
                                             }
+                                        }
 
-                                            //End address
-                                            if(i==al.length()-1 && l.has("end_address") && !l.isNull("end_address")){
-                                                if (l.has("end_location") && !l.isNull("end_location")) {
-                                                    map.addMarker(new MarkerOptions()
-                                                            .position(new LatLng(l.getJSONObject("end_location").getDouble("lat"), l.getJSONObject("end_location").getDouble("lng")))
-                                                            .title(l.getString("end_address"))
-                                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                                        //Legs
+                                        if(r.has("legs") && !r.isNull("legs")) {
+                                            JSONArray al = r.getJSONArray("legs");
+                                            for (int i = 0; i < al.length(); i++) {
+                                                if (!al.isNull(i)) {
+                                                    JSONObject l = al.getJSONObject(i);
+
+                                                    //Start address
+                                                    if(i==0 && l.has("start_address") && !l.isNull("start_address")){
+                                                        if (l.has("start_location") && !l.isNull("start_location")) {
+                                                            googleMap.addMarker(new MarkerOptions()
+                                                                    .position(new LatLng(l.getJSONObject("start_location").getDouble("lat"), l.getJSONObject("start_location").getDouble("lng")))
+                                                                    .title(l.getString("start_address"))
+                                                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                                                        }
+                                                    }
+
+                                                    //End address
+                                                    if(i==al.length()-1 && l.has("end_address") && !l.isNull("end_address")){
+                                                        if (l.has("end_location") && !l.isNull("end_location")) {
+                                                            googleMap.addMarker(new MarkerOptions()
+                                                                    .position(new LatLng(l.getJSONObject("end_location").getDouble("lat"), l.getJSONObject("end_location").getDouble("lng")))
+                                                                    .title(l.getString("end_address"))
+                                                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
+                        } catch (JSONException e) {
+                            Log.e(LOG_TAG, "Cannot process directions JSON results", e);
+                        }
+                        if(ff!=null) {
+                            googleMap.addMarker(new MarkerOptions().position(new LatLng(ff.getLat(), ff.getLng()))
+                                    .title(ff.getName()).snippet(getString(R.string.phoneLabel) + " " + ff.getPhone())
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));
                         }
                     }
-                } catch (JSONException e) {
-                    Log.e(LOG_TAG, "Cannot process directions JSON results", e);
                 }
-                if(ff!=null) {
-                    map.addMarker(new MarkerOptions().position(new LatLng(ff.getLat(), ff.getLng()))
-                            .title(ff.getName()).snippet(getString(R.string.phoneLabel) + " " + ff.getPhone())
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));
-                }
-            }
+            });
         }
     }
 

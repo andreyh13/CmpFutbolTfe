@@ -259,6 +259,7 @@ public class MainMapFragment extends Fragment
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
 
         mClusterManager = new ClusterManager<>(this.getActivity(), googleMap);
         mClusterManager.setRenderer(new MarkerItemRenderer());

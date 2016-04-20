@@ -54,7 +54,7 @@ public class StreetViewActivity extends AppCompatActivity implements OnStreetVie
             Log.e(LOG_TAG, "Exception", e);
         }
 
-        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_material,
                 getApplicationContext().getTheme());
         toolbar.setNavigationIcon(upArrow);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

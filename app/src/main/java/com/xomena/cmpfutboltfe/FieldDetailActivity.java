@@ -79,6 +79,8 @@ public class FieldDetailActivity extends AppCompatActivity
             googleMap.addMarker(new MarkerOptions().position(new LatLng(ff.getLat(), ff.getLng()))
                     .title(ff.getName()).snippet(getString(R.string.phoneLabel) + " " + ff.getPhone())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));
+
+            googleMap.getUiSettings().setMapToolbarEnabled(false);
         }
     }
 

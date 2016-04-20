@@ -132,6 +132,7 @@ public class AnimateRouteActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
         if(polyline != null) {
             PolylineOptions polyOptions = new PolylineOptions().addAll(path);
             googleMap.addPolyline(polyOptions);

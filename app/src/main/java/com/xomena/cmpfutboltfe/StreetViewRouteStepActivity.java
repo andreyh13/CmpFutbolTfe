@@ -105,6 +105,7 @@ public class StreetViewRouteStepActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
         if(polyline != null && path!=null && path.size()>0) {
             PolylineOptions polyOptions = new PolylineOptions().addAll(path);
             googleMap.addPolyline(polyOptions);

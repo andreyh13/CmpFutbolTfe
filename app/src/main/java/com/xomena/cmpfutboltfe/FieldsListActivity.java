@@ -37,7 +37,7 @@ public class FieldsListActivity extends AppCompatActivity implements FootballFie
             Log.e(TAG, "Exception", e);
         }
 
-        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_mtrl_am_alpha,
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.abc_ic_ab_back_material,
                 getApplicationContext().getTheme());
         toolbar.setNavigationIcon(upArrow);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
