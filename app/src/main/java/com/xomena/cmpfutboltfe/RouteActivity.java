@@ -1,12 +1,16 @@
 package com.xomena.cmpfutboltfe;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
@@ -18,6 +22,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -35,9 +40,11 @@ import java.util.List;
 
 
 public class RouteActivity extends AppCompatActivity implements
-        RouteMapFragment.OnFragmentInteractionListener, DirectionsMapFragment.OnFragmentInteractionListener {
+        RouteMapFragment.OnFragmentInteractionListener, DirectionsMapFragment.OnFragmentInteractionListener,
+        OnMyLocationButtonClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String LOG_TAG = "RouteActivity";
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     SimplePagerAdapter mPagerAdapter;
     ViewPager mViewPager;
@@ -45,6 +52,8 @@ public class RouteActivity extends AppCompatActivity implements
     private JSONObject jsonRoute = null;
     private FootballField ff;
     private String enc_polyline = null;
+    private boolean mPermissionDenied = false;
+    private GoogleMap mMap = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,6 +208,9 @@ public class RouteActivity extends AppCompatActivity implements
                                     .title(ff.getName()).snippet(getString(R.string.phoneLabel) + " " + ff.getPhone())
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_soccerfield)));
                         }
+                        googleMap.setOnMyLocationButtonClickListener(self);
+                        self.mMap = googleMap;
+                        self.enableMyLocation();
                     }
                 }
             });
@@ -222,5 +234,66 @@ public class RouteActivity extends AppCompatActivity implements
 
     public void onShowStreetView(View view){
         this.onRouteAnimationClick();
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        // Return false so that we don't consume the event and the default behavior still occurs
+        // (the camera animates to the user's current position).
+        return false;
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                            int[] grantResults) {
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+
+        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Enable the my location layer if the permission has been granted.
+            enableMyLocation();
+        } else {
+            // Display the missing permission error dialog when the fragments resume.
+            mPermissionDenied = true;
+        }
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if (mPermissionDenied) {
+            // Permission was not granted, display error dialog.
+            showMissingPermissionError();
+            mPermissionDenied = false;
+        }
+    }
+
+    /**
+     * Displays a dialog with error message explaining that the location permission is missing.
+     */
+    private void showMissingPermissionError() {
+        PermissionUtils.PermissionDeniedDialog
+                .newInstance(true).show(getSupportFragmentManager(), "dialog");
+    }
+
+
+    /**
+     * Enables the My Location layer if the fine location permission has been granted.
+     */
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            if (mMap != null) {
+                mMap.setMyLocationEnabled(true);
+            }
+        }
     }
 }
