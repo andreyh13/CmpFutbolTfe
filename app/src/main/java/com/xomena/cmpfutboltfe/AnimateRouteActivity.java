@@ -1,10 +1,14 @@
 package com.xomena.cmpfutboltfe;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -17,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
@@ -40,9 +45,11 @@ import java.util.TimerTask;
 
 public class AnimateRouteActivity extends AppCompatActivity
         implements OnStreetViewPanoramaReadyCallback, GoogleMap.OnMapClickListener,
-        OnMapReadyCallback, StreetViewPanorama.OnStreetViewPanoramaChangeListener {
+        OnMapReadyCallback, StreetViewPanorama.OnStreetViewPanoramaChangeListener,
+        OnMyLocationButtonClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String LOG_TAG = "AnimateRouteActivity";
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private String polyline;
     private FootballField ff;
@@ -56,6 +63,8 @@ public class AnimateRouteActivity extends AppCompatActivity
 
     private boolean hasRuntimeData;
     private boolean wasAnimated;
+    private boolean mPermissionDenied = false;
+    private GoogleMap mMap;
 
 
     @Override
@@ -162,6 +171,9 @@ public class AnimateRouteActivity extends AppCompatActivity
                 onMovePosition(findViewById(R.id.move_position));
             }
         }
+        googleMap.setOnMyLocationButtonClickListener(this);
+        this.mMap = googleMap;
+        this.enableMyLocation();
     }
 
     public void onMovePosition(View view){
@@ -399,6 +411,67 @@ public class AnimateRouteActivity extends AppCompatActivity
     @Override
     public  void onStreetViewPanoramaChange(StreetViewPanoramaLocation location) {
         moveCameraToNextPosition(interpolated);
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        // Return false so that we don't consume the event and the default behavior still occurs
+        // (the camera animates to the user's current position).
+        return false;
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+
+        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Enable the my location layer if the permission has been granted.
+            enableMyLocation();
+        } else {
+            // Display the missing permission error dialog when the fragments resume.
+            mPermissionDenied = true;
+        }
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if (mPermissionDenied) {
+            // Permission was not granted, display error dialog.
+            showMissingPermissionError();
+            mPermissionDenied = false;
+        }
+    }
+
+    /**
+     * Displays a dialog with error message explaining that the location permission is missing.
+     */
+    private void showMissingPermissionError() {
+        PermissionUtils.PermissionDeniedDialog
+                .newInstance(true).show(getSupportFragmentManager(), "dialog");
+    }
+
+
+    /**
+     * Enables the My Location layer if the fine location permission has been granted.
+     */
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            if (mMap != null) {
+                mMap.setMyLocationEnabled(true);
+            }
+        }
     }
 
 }
