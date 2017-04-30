@@ -38,6 +38,8 @@ public class MarkerItem implements ClusterItem {
         return this.name;
     }
 
+    public String getTitle() { return this.name; }
+
     public String getSnippet(){
         return this.snippet;
     }

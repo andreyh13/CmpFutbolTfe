@@ -232,7 +232,7 @@ public class MainMapFragment extends Fragment
     private void initializeMainMap(GoogleMap googleMap, Map<String,List<FootballField>> ff_data){
         if(ff_data!=null && googleMap != null) {
             googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-            googleMap.setOnCameraChangeListener(mClusterManager);
+            googleMap.setOnCameraIdleListener(mClusterManager);
             googleMap.setOnMarkerClickListener(mClusterManager);
             googleMap.setOnInfoWindowClickListener(mClusterManager);
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
