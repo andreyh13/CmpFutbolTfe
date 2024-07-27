@@ -26,7 +26,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginRight="6dp"
         android:layout_marginEnd="6dp"
         android:layout_marginBottom="4dp"
         android:src="@drawable/powered_by_google_light"
@@ -43,7 +42,7 @@
         android:text="@string/select_stored_place"
         android:textStyle="bold" />
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSelectPlace"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

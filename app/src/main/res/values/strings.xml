@@ -58,4 +58,12 @@
     <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
     <string name="location_permission_denied">This sample requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Google Maps API Demos\'.</string>
     <string name="permission_required_toast">Location permission is required for this demo.</string>
+    <string name="main_activity_tabs">Main activity tabs</string>
+    <string name="main_activity_pager">Main activity pager</string>
+    <string name="on_move_position">On Move Position</string>
+    <string name="show_pitch_directions">Show pitch directions</string>
+    <string name="show_pitch_street_view">Show pitch street view</string>
+    <string name="add_place">Add place</string>
+    <string name="pager">Pager</string>
+    <string name="tabs">Tabs</string>
 </resources>

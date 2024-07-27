@@ -1,14 +1,13 @@
 package com.xomena.cmpfutboltfe;
 
 import android.app.SearchManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.content.Intent;
 
+import androidx.appcompat.app.AppCompatActivity;
 
-public class SearchableActivity extends ActionBarActivity {
+
+public class SearchableActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

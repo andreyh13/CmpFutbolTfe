@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="com.xomena.cmpfutboltfe.RouteMapFragment">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
@@ -42,8 +41,7 @@
             android:paddingLeft="@dimen/abc_action_bar_content_inset_material"
             android:layout_below="@id/routeDistanceDuration" />
 
-        <android.support.v7.widget.RecyclerView
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRoute"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -1,16 +1,15 @@
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbarAnimate"
             android:minHeight="?attr/actionBarSize"
             android:layout_width="match_parent"
@@ -26,7 +25,7 @@
                 style="@style/Toolbar.TitleText"
                 android:layout_gravity="center"
                 />
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
         <fragment
             android:name="com.google.android.gms.maps.StreetViewPanoramaFragment"
@@ -36,7 +35,7 @@
             android:layout_weight="4"
         />
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        <fragment
             android:id="@+id/animate_map"
             android:name="com.google.android.gms.maps.MapFragment"
             android:layout_width="match_parent"
@@ -45,18 +44,19 @@
             />
     </LinearLayout>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/move_position"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginEnd="8dp"
         android:src="@drawable/ic_play_circle_outline_white_24dp"
         android:clickable="true"
+        android:focusable="true"
         android:onClick="onMovePosition"
+        android:contentDescription="@string/on_move_position"
         app:layout_anchor="@id/animate_map"
         app:layout_anchorGravity="bottom|right|end" />
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

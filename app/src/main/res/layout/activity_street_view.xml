@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarSV"
         android:minHeight="?attr/actionBarSize"
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
             style="@style/Toolbar.TitleText"
             android:layout_gravity="center"
             />
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <fragment
         android:name="com.google.android.gms.maps.StreetViewPanoramaFragment"

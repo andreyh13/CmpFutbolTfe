@@ -3,7 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CmpFutbolTfe.iml" filepath="$PROJECT_DIR$/CmpFutbolTfe.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/CmpFutbolTfe.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/CmpFutbolTfe.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/CmpFutbolTfe.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/CmpFutbolTfe.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/CmpFutbolTfe.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/CmpFutbolTfe.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/CmpFutbolTfe.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/CmpFutbolTfe.app.unitTest.iml" />
     </modules>
   </component>
 </project>

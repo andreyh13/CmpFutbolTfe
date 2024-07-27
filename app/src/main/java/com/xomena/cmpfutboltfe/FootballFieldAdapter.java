@@ -2,12 +2,13 @@ package com.xomena.cmpfutboltfe;
 
 import java.util.List;
 
-import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 
 public class FootballFieldAdapter extends RecyclerView.Adapter<FootballFieldAdapter.ViewHolder> {
