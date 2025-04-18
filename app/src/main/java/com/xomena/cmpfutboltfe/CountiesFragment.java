@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.xomena.cmpfutboltfe.model.County;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -85,7 +87,7 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
         super.onSaveInstanceState(savedInstanceState);
 
         if(ff_data != null){
-            savedInstanceState.putStringArray(MainActivity.SAVED_KEYS, ff_data.keySet().toArray(new String[ff_data.keySet().size()]));
+            savedInstanceState.putStringArray(MainActivity.SAVED_KEYS, ff_data.keySet().toArray(new String[ff_data.size()]));
             for(String key : ff_data.keySet()){
                 ArrayList<FootballField> af = new ArrayList<>(ff_data.get(key));
                 savedInstanceState.putParcelableArrayList(key, af);

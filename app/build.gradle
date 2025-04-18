@@ -1,9 +1,12 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android' version '2.1.0'
+}
 
 android {
     signingConfigs {
         debug {
-            storeFile file('/home/andriy/keystores/android.jks')
+            storeFile file('/home/andriy/keystore/android.jks')
             storePassword 'fgtr434'
             keyAlias 'XomenaAndroidKey'
             keyPassword 'fgtr434'
@@ -11,7 +14,7 @@ android {
         config {
             keyAlias 'XomenaAndroidKey'
             keyPassword 'fgtr434'
-            storeFile file('/home/andriy/keystores/android.jks')
+            storeFile file('/home/andriy/keystore/android.jks')
             storePassword 'fgtr434'
         }
     }
@@ -20,8 +23,8 @@ android {
         applicationId "com.xomena.cmpfutboltfe"
         minSdkVersion 23
         targetSdk 35
-        versionCode 6
-        versionName '1.0.4'
+        versionCode 7
+        versionName '1.0.5'
     }
     buildTypes {
         release {
@@ -40,7 +43,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
-    buildToolsVersion '35.0.1'
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+    buildToolsVersion '36.0.0'
     namespace 'com.xomena.cmpfutboltfe'
 }
 
@@ -51,11 +57,24 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.gms:play-services-maps:19.0.0'
+    implementation 'com.google.android.gms:play-services-maps:19.1.0'
     implementation 'com.google.android.gms:play-services-places:17.1.0'
     implementation 'com.google.android.gms:play-services-panorama:17.1.0'
     implementation 'com.google.android.gms:play-services-location:21.3.0'
     implementation 'com.google.maps:google-maps-services:0.1.9'
     implementation 'com.google.maps.android:android-maps-utils:0.5'
     implementation 'com.turbomanage.basic-http-client:http-client-android:0.89'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0"
+
+    implementation("androidx.compose.ui:ui:1.7.8")
+    implementation("androidx.compose.material:material:1.7.8")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.7.8")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.7.8")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+    implementation("androidx.activity:activity-compose:1.10.1")
+
+    // Integration with ViewModels
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.8.9")
 }

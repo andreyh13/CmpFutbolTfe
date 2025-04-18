@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.xomena.cmpfutboltfe.model.County;
+
 import java.util.List;
 
 // Create the basic adapter extending from RecyclerView.Adapter
@@ -43,7 +45,7 @@ public class CountyAdapter extends
     }
 
     // Store a member variable for the contacts
-    private List<County> mCounties;
+    private final List<County> mCounties;
     private static OnItemClickListener mListener;
 
     // Define the listener interface
