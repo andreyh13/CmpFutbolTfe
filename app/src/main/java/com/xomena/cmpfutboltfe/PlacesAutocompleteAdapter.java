@@ -1,4 +1,6 @@
 package com.xomena.cmpfutboltfe;
+import com.xomena.cmpfutboltfe.model.*;
+import com.xomena.cmpfutboltfe.util.*;
 
 /*
  * Copyright (C) 2015 Google Inc. All Rights Reserved.

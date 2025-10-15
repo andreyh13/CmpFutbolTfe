@@ -1,4 +1,6 @@
 package com.xomena.cmpfutboltfe;
+import com.xomena.cmpfutboltfe.model.*;
+import com.xomena.cmpfutboltfe.util.*;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -40,10 +42,10 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     protected static final String GEOCODE_API_BASE = "https://maps.googleapis.com/maps/api/geocode";
     protected static final String OUT_JSON = "/json";
 
-    protected static final String XOMENA_DOMAIN = "http://aux.xomena.elementfx.com";
-    protected static final String XOMENA_WS_PROXY = "/geows.php";
+    public static final String XOMENA_DOMAIN = "http://aux.xomena.elementfx.com";
+    public static final String XOMENA_WS_PROXY = "/geows.php";
 
-    protected static final String[] API_KEYS = new String[] {
+    public static final String[] API_KEYS = new String[] {
             "AIzaSyAf5x1KKZAiW5XIm5Nop1sD7NrGY9hAsgE",
             "AIzaSyDHK8_Oudx__GQszqPD8ukVMnrJQaMNWYk",
             "AIzaSyBwrb2-1hlA0AkiI9aiNO3kq2t_8wk11vY",
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     protected static final LatLngBounds BOUNDS_TENERIFE = new LatLngBounds(
             new LatLng(27.9980726,-16.9259232), new LatLng(28.5893007,-16.1194386));
 
-    protected static final String PLACES_SHARED_PREF = "com.xomena.cmpfutboltfe.PREFERENCE_PLACES_KEY";
+    public static final String PLACES_SHARED_PREF = "com.xomena.cmpfutboltfe.PREFERENCE_PLACES_KEY";
 
     //protected static final int QPS = 10;
 

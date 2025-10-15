@@ -1,4 +1,6 @@
 package com.xomena.cmpfutboltfe;
+import com.xomena.cmpfutboltfe.model.*;
+import com.xomena.cmpfutboltfe.util.*;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -36,7 +38,7 @@ public class ManagePlacesActivity extends AppCompatActivity
             implements ManagePlacesAdapter.OnItemClickListener {
     private static final String LOG_TAG = "MyPlaces";
 
-    protected static final String STORED_KEYS = "PLACE_IDS";
+    public static final String STORED_KEYS = "PLACE_IDS";
 
     private int PLACE_PICKER_REQUEST = 1;
     private Activity self;
@@ -126,7 +128,10 @@ public class ManagePlacesActivity extends AppCompatActivity
                     editor.putStringSet(placeId, placeData);
                     editor.apply();
 
-                    adapter.addItem(new MyPlace(placeData), adapter.getItemCount());
+                    MyPlace myPlace = MyPlace.fromStringSet(placeData);
+                    if (myPlace != null) {
+                        adapter.addItem(myPlace, adapter.getItemCount());
+                    }
 
                     String toastMsg = String.format(getString(R.string.place_added_to_list), place.getName());
                     Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();

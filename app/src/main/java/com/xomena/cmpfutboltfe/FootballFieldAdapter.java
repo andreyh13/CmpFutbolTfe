@@ -1,4 +1,6 @@
 package com.xomena.cmpfutboltfe;
+import com.xomena.cmpfutboltfe.model.*;
+import com.xomena.cmpfutboltfe.util.*;
 
 import java.util.List;
 

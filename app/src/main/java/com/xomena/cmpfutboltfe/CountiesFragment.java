@@ -1,4 +1,6 @@
 package com.xomena.cmpfutboltfe;
+import com.xomena.cmpfutboltfe.model.*;
+import com.xomena.cmpfutboltfe.util.*;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.xomena.cmpfutboltfe.model.County;
+import com.xomena.cmpfutboltfe.util.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -251,7 +254,7 @@ public class CountiesFragment extends Fragment implements CountyAdapter.OnItemCl
                 for(int i=1; i<js_arr.length(); i++){
                     if(!js_arr.isNull(i)){
                         JSONArray js_val = js_arr.getJSONArray(i);
-                        FootballField ff = new FootballField(js_val);
+                        FootballField ff = FootballField.fromJSONArray(js_val);
                         String key = ff.getCounty();
                         if(!res.containsKey(key)){
                             res.put(key, new LinkedList<FootballField>());
