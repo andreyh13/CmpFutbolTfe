@@ -1,6 +1,7 @@
 package com.xomena.cmpfutboltfe;
 import com.xomena.cmpfutboltfe.model.*;
 import com.xomena.cmpfutboltfe.util.*;
+import com.xomena.cmpfutboltfe.ui.*;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -131,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
                 break;
             case R.id.action_about:
                 FragmentManager fm = getSupportFragmentManager();
-                AboutDialog d = AboutDialog.newInstance(getString(R.string.about));
+                AboutDialogFragment d = AboutDialogFragment.newInstance(getString(R.string.about));
                 d.show(fm, "layout_about_dialog");
                 break;
         }
