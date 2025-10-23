@@ -1,6 +1,7 @@
 package com.xomena.cmpfutboltfe;
 import com.xomena.cmpfutboltfe.model.*;
 import com.xomena.cmpfutboltfe.util.*;
+import com.xomena.cmpfutboltfe.ui.adapter.*;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.xomena.cmpfutboltfe.model.County;
 import com.xomena.cmpfutboltfe.util.*;
+import com.xomena.cmpfutboltfe.ui.adapter.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,7 +50,7 @@ import java.util.Map;
  * Use the {@link CountiesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CountiesFragment extends Fragment implements CountyAdapter.OnItemClickListener {
+public class CountiesFragment extends Fragment implements com.xomena.cmpfutboltfe.ui.adapter.CountyAdapter.OnItemClickListener {
 
     private static final String TAG = "CountiesFragment";
     private static final String DATA_SERVICE_URL = "https://script.google.com/macros/s/AKfycbyxqfsV0zdCKFRxgYYWPVO1PMshyhiuvTbvuKkkHjEGimPcdlpd/exec?jsonp=?";

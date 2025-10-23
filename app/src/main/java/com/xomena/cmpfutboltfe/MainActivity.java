@@ -1,7 +1,9 @@
 package com.xomena.cmpfutboltfe;
 import com.xomena.cmpfutboltfe.model.*;
 import com.xomena.cmpfutboltfe.util.*;
+import com.xomena.cmpfutboltfe.ui.adapter.*;
 import com.xomena.cmpfutboltfe.ui.*;
+import com.xomena.cmpfutboltfe.ui.adapter.*;
 
 import android.os.Bundle;
 import android.util.Log;

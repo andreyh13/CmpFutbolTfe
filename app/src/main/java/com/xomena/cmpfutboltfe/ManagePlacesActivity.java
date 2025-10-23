@@ -1,6 +1,7 @@
 package com.xomena.cmpfutboltfe;
 import com.xomena.cmpfutboltfe.model.*;
 import com.xomena.cmpfutboltfe.util.*;
+import com.xomena.cmpfutboltfe.ui.adapter.*;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -35,7 +36,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ManagePlacesActivity extends AppCompatActivity
-            implements ManagePlacesAdapter.OnItemClickListener {
+            implements com.xomena.cmpfutboltfe.ui.adapter.ManagePlacesAdapter.OnItemClickListener {
     private static final String LOG_TAG = "MyPlaces";
 
     public static final String STORED_KEYS = "PLACE_IDS";
