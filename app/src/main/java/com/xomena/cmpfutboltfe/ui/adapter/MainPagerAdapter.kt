@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import com.xomena.cmpfutboltfe.CountiesFragment
 import com.xomena.cmpfutboltfe.MainMapFragment
 import com.xomena.cmpfutboltfe.R
+import com.xomena.cmpfutboltfe.ui.fragment.CountiesFragment
 
 @Suppress("DEPRECATION")
 class MainPagerAdapter(

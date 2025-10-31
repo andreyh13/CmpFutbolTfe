@@ -2,8 +2,10 @@ package com.xomena.cmpfutboltfe;
 import com.xomena.cmpfutboltfe.model.*;
 import com.xomena.cmpfutboltfe.util.*;
 import com.xomena.cmpfutboltfe.ui.adapter.*;
+import com.xomena.cmpfutboltfe.ui.fragment.*;
 import com.xomena.cmpfutboltfe.ui.*;
 import com.xomena.cmpfutboltfe.ui.adapter.*;
+import com.xomena.cmpfutboltfe.ui.fragment.*;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements CountiesFragment.
     protected static final String EXTRA_COUNTY = "com.xomena.cmpfutboltfe.COUNTY";
     protected static final String EXTRA_FIELDS = "com.xomena.cmpfutboltfe.FIELDS";
     protected static final String EXTRA_ITEM = "com.xomena.cmpfutboltfe.ITEM";
-    protected static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
+    public static final String SAVED_KEYS = "com.xomena.cmpfutboltfe.KEYS";
     protected static final String EXTRA_ADDRESS = "com.xomena.cmpfutboltfe.ADDRESS";
     protected static final String EXTRA_PLACEID = "com.xomena.cmpfutboltfe.PLACEID";
     protected static final String EXTRA_ENC_POLY = "com.xomena.cmpfutboltfe.ENC_POLY";
