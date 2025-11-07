@@ -39,7 +39,11 @@ android {
             excludes += ['META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/LICENSE', 'META-INF/NOTICE.txt', 'META-INF/LICENSE.txt']
         }
     }
-    sourceSets { main { res.srcDirs = ['src/main/res'] } }
+    sourceSets { 
+        main { 
+            res.srcDirs = ['src/main/res']
+        } 
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11

@@ -343,7 +343,7 @@ class AnimateRouteActivity : AppCompatActivity(),
                 nearestInd = index
             }
         }
-        if (mdist <= 50f) {
+        if (mdist <= 50f && nearest != null) {
             timer?.let {
                 it.cancel()
                 timer = null

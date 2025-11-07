@@ -107,11 +107,11 @@ class RouteActivity : AppCompatActivity(),
             return PAGE_COUNT
         }
 
-        override fun getItem(position: Int): Fragment? {
+        override fun getItem(position: Int): Fragment {
             return when (position) {
                 0 -> RouteMapFragment.newInstance()
                 1 -> DirectionsMapFragment.newInstance()
-                else -> null
+                else -> RouteMapFragment.newInstance()
             }
         }
 

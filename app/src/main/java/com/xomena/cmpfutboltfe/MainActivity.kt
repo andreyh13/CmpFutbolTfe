@@ -105,22 +105,22 @@ class MainActivity : AppCompatActivity(), CountiesFragment.OnFragmentInteraction
         this.showProgressBar()
     }
 
-    override fun onObtainFootballFields(ff_data: Map<String, List<FootballField>>?) {
+    override fun onObtainFootballFields(ffData: Map<String, List<FootballField>>) {
         this.hideProgressBar()
         val fragments = supportFragmentManager.fragments
         for (frag in fragments) {
             if (frag is MainMapFragment) {
-                frag.setFootbalFields(ff_data)
+                frag.setFootbalFields(ffData)
                 break
             }
         }
     }
 
-    override fun onSelectCounty(county: String, ff_data: Map<String, List<FootballField>>?) {
+    override fun onSelectCounty(county: String, ffData: Map<String, List<FootballField>>) {
         val intent = Intent(this, FieldsListActivity::class.java)
         intent.putExtra(EXTRA_COUNTY, county)
-        if (ff_data != null && ff_data.containsKey(county)) {
-            val ff_list = ff_data[county]
+        if (ffData.containsKey(county)) {
+            val ff_list = ffData[county]
             intent.putParcelableArrayListExtra(EXTRA_FIELDS, ArrayList(ff_list))
         }
         startActivity(intent)
